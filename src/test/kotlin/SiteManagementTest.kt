@@ -1,4 +1,4 @@
-import application.DataRepository
+import application.LocalDataRepository
 import application.app
 import com.natpryce.hamkrest.and
 import com.natpryce.hamkrest.assertion.assertThat
@@ -16,18 +16,17 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import kotlin.time.Duration
 
-internal class FakeDataRepository : DataRepository {
-    override fun getWebsiteRecords() = listOf(
-        WebsiteRecord(
-            url = "www.google.com",
-            boundaryRegExp = "",
-            periodicity = Duration.ZERO,
-            label = "",
-            active = true,
-            tags = emptyList()
-        )
+
+private val websites = listOf(
+    WebsiteRecord(
+        url = "www.google.com",
+        boundaryRegExp = "",
+        periodicity = Duration.ZERO,
+        label = "",
+        active = true,
+        tags = emptyList()
     )
-}
+)
 
 @ExtendWith(ApprovalTest::class)
 internal class SiteManagementTest {
@@ -35,7 +34,9 @@ internal class SiteManagementTest {
 
     @BeforeEach
     fun setup() {
-        application = app(FakeDataRepository())
+        val repository = LocalDataRepository()
+        websites.forEach { repository.addWebsiteRecord(it) }
+        application = app(repository)
     }
 
 
