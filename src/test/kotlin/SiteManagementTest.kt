@@ -1,13 +1,16 @@
+
+import application.DataRepository
 import application.LocalDataRepository
 import application.app
 import com.natpryce.hamkrest.and
 import com.natpryce.hamkrest.assertion.assertThat
+import com.natpryce.hamkrest.hasElement
 import model.WebsiteRecord
-import org.http4k.core.HttpHandler
-import org.http4k.core.Method
-import org.http4k.core.Request
-import org.http4k.core.Status
+import org.http4k.core.*
+import org.http4k.format.KotlinxSerialization.asJsonObject
+import org.http4k.format.KotlinxSerialization.json
 import org.http4k.hamkrest.hasStatus
+import org.http4k.lens.*
 import org.http4k.testing.ApprovalTest
 import org.http4k.testing.Approver
 import org.http4k.testing.hasApprovedContent
@@ -17,7 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import kotlin.time.Duration
 
 
-private val websites = listOf(
+private val website =
     WebsiteRecord(
         url = "www.google.com",
         boundaryRegExp = "",
@@ -26,27 +29,32 @@ private val websites = listOf(
         active = true,
         tags = emptyList()
     )
-)
 
 @ExtendWith(ApprovalTest::class)
 internal class SiteManagementTest {
     private lateinit var application: HttpHandler
+    private lateinit var repository: DataRepository
 
     @BeforeEach
     fun setup() {
-        val repository = LocalDataRepository()
-        websites.forEach { repository.addWebsiteRecord(it) }
+        repository = LocalDataRepository()
         application = app(repository)
     }
 
 
     @Test
-    fun `create new website record`() {
+    fun `client should be able to create a new record`() {
         // given
+        val request = Request(Method.POST, "/record").with(
+            Body.json().toLens() of website.asJsonObject()
+        )
 
         // when
+        val response = application(request)
 
         // then
+        assertThat(response, hasStatus(Status.ACCEPTED))
+        assertThat(repository.getWebsiteRecords(), hasElement(website))
     }
 
     @Test
@@ -55,6 +63,8 @@ internal class SiteManagementTest {
         val request = Request(Method.GET, "/records")
 
         // when
+        // - adds sample website record to fetch
+        repository.addWebsiteRecord(website)
         val response = application(request)
 
         // then
