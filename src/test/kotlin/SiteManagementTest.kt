@@ -26,7 +26,9 @@ private val website =
         periodicity = Duration.ZERO,
         label = "",
         active = true,
-        tags = emptyList()
+        tags = emptyList(),
+        lastExecution = "",
+        executionStatus = false
     )
 
 @ExtendWith(ApprovalTest::class)
