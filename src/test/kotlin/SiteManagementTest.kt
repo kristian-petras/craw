@@ -2,11 +2,8 @@
 import application.DataRepository
 import application.LocalDataRepository
 import application.app
-import com.natpryce.hamkrest.and
+import com.natpryce.hamkrest.*
 import com.natpryce.hamkrest.assertion.assertThat
-import com.natpryce.hamkrest.equalTo
-import com.natpryce.hamkrest.hasElement
-import com.natpryce.hamkrest.hasSize
 import model.WebsiteRecord
 import org.http4k.core.*
 import org.http4k.format.KotlinxSerialization.asJsonObject
@@ -110,5 +107,38 @@ internal class SiteManagementTest {
     }
 
     @Test
-    fun `delete`() = 3
+    fun `client should be able to delete existing record`() {
+        // given
+        val request = Request(Method.DELETE, "/record").with(
+            Body.json().toLens() of website.asJsonObject()
+        )
+
+        // when
+        // - original website is present in the repository
+        repository.addWebsiteRecord(website)
+        val response = application(request)
+
+        // then
+        assertThat(response, hasStatus(Status.ACCEPTED))
+        assertThat(repository.getWebsiteRecords(), hasElement(website).not().and(isEmpty))
+    }
+
+    @Test
+    fun `client should not be able to delete not existing record`() {
+        // given
+        val modifiedWebsite = website.copy(url = "www.example.com")
+        val request = Request(Method.DELETE, "/record").with(
+            Body.json().toLens() of modifiedWebsite.asJsonObject()
+        )
+
+        // when
+        // - original website is present in the repository
+        repository.addWebsiteRecord(website)
+        val response = application(request)
+
+        // then
+        // - repository remains unchanged
+        assertThat(response, hasStatus(Status.BAD_REQUEST))
+        assertThat(repository.getWebsiteRecords(), hasElement(website).and(hasSize(equalTo(1))))
+    }
 }

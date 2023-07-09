@@ -14,4 +14,6 @@ class LocalDataRepository : DataRepository {
         }
         return success
     }
+
+    override fun deleteWebsiteRecord(website: WebsiteRecord): Boolean = websiteRecords.remove(website)
 }

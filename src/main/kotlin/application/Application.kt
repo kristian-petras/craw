@@ -12,7 +12,7 @@ fun app(repository: DataRepository) = routes(
     getRecords(repository),
     addRecord(repository),
     modifyRecord(repository),
-    hello()
+    deleteRecord(repository)
 )
 
 private fun getRecords(repository: DataRepository) = "/records" bind Method.GET to {
@@ -22,23 +22,29 @@ private fun getRecords(repository: DataRepository) = "/records" bind Method.GET 
 }
 
 private fun addRecord(repository: DataRepository) = "/record" bind Method.POST to {
-    val record = WebsiteRecord.lens(it).orThrow()
-    val success = repository.addWebsiteRecord(record)
-    if (success) {
-        Response(Status.ACCEPTED)
-    } else {
-        Response(Status.BAD_REQUEST)
+    handleRequest(it) { record ->
+        repository.addWebsiteRecord(record)
     }
 }
 
 private fun modifyRecord(repository: DataRepository) = "/record" bind Method.PUT to {
-    val record = WebsiteRecord.lens(it).orThrow()
-    val success = repository.modifyWebsiteRecord(record)
-    if (success) {
+    handleRequest(it) { record ->
+        repository.modifyWebsiteRecord(record)
+    }
+}
+
+private fun deleteRecord(repository: DataRepository) = "/record" bind Method.DELETE to {
+    handleRequest(it) { record ->
+        repository.deleteWebsiteRecord(record)
+    }
+}
+
+private fun handleRequest(request: Request, block: (WebsiteRecord) -> Boolean) : Response {
+    val record = WebsiteRecord.lens(request).orThrow()
+    val success = block(record)
+    return if (success) {
         Response(Status.ACCEPTED)
     } else {
         Response(Status.BAD_REQUEST)
     }
 }
-
-private fun hello() = "/" bind Method.GET to { Response(Status.OK).body("Hello World!") }
