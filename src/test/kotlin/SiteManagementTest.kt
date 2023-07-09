@@ -4,7 +4,9 @@ import application.LocalDataRepository
 import application.app
 import com.natpryce.hamkrest.and
 import com.natpryce.hamkrest.assertion.assertThat
+import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.hasElement
+import com.natpryce.hamkrest.hasSize
 import model.WebsiteRecord
 import org.http4k.core.*
 import org.http4k.format.KotlinxSerialization.asJsonObject
@@ -41,6 +43,19 @@ internal class SiteManagementTest {
         application = app(repository)
     }
 
+    @Test
+    fun `client should be able to show all records`(approver: Approver) {
+        // given
+        val request = Request(Method.GET, "/records")
+
+        // when
+        // - there is a website in repository
+        repository.addWebsiteRecord(website)
+        val response = application(request)
+
+        // then
+        assertThat(response, hasStatus(Status.OK).and(approver.hasApprovedContent()))
+    }
 
     @Test
     fun `client should be able to create a new record`() {
@@ -58,21 +73,41 @@ internal class SiteManagementTest {
     }
 
     @Test
-    fun `client should be able to show all records`(approver: Approver) {
+    fun `client should be able to modify the record`() {
         // given
-        val request = Request(Method.GET, "/records")
+        val modifiedWebsite = website.copy(label = "test")
+        val request = Request(Method.PUT, "/record").with(
+            Body.json().toLens() of modifiedWebsite.asJsonObject()
+        )
 
         // when
-        // - adds sample website record to fetch
+        // - original website is present in the repository
         repository.addWebsiteRecord(website)
         val response = application(request)
 
         // then
-        assertThat(response, hasStatus(Status.OK).and(approver.hasApprovedContent()))
+        assertThat(response, hasStatus(Status.ACCEPTED))
+        assertThat(repository.getWebsiteRecords(), hasElement(modifiedWebsite).and(hasSize(equalTo(1))))
     }
 
     @Test
-    fun `update`() = 3
+    fun `client should not be able to modify non existing record`() {
+        // given
+        val modifiedWebsite = website.copy(url = "www.example.com")
+        val request = Request(Method.PUT, "/record").with(
+            Body.json().toLens() of modifiedWebsite.asJsonObject()
+        )
+
+        // when
+        // - original website is present in the repository
+        repository.addWebsiteRecord(website)
+        val response = application(request)
+
+        // then
+        // - repository remains unchanged
+        assertThat(response, hasStatus(Status.BAD_REQUEST))
+        assertThat(repository.getWebsiteRecords(), hasElement(website).and(hasSize(equalTo(1))))
+    }
 
     @Test
     fun `delete`() = 3

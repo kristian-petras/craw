@@ -9,21 +9,36 @@ import org.http4k.routing.bind
 import org.http4k.routing.routes
 
 fun app(repository: DataRepository) = routes(
-    records(repository),
-    record(repository),
+    getRecords(repository),
+    addRecord(repository),
+    modifyRecord(repository),
     hello()
 )
 
-private fun records(repository: DataRepository) = "/records" bind Method.GET to {
+private fun getRecords(repository: DataRepository) = "/records" bind Method.GET to {
     val records = repository.getWebsiteRecords()
     Response(Status.OK)
         .with(Body.json().toLens() of records.asJsonObject())
 }
 
-private fun record(repository: DataRepository) = "/record" bind Method.POST to {
+private fun addRecord(repository: DataRepository) = "/record" bind Method.POST to {
     val record = WebsiteRecord.lens(it).orThrow()
-    repository.addWebsiteRecord(record)
-    Response(Status.ACCEPTED)
+    val success = repository.addWebsiteRecord(record)
+    if (success) {
+        Response(Status.ACCEPTED)
+    } else {
+        Response(Status.BAD_REQUEST)
+    }
+}
+
+private fun modifyRecord(repository: DataRepository) = "/record" bind Method.PUT to {
+    val record = WebsiteRecord.lens(it).orThrow()
+    val success = repository.modifyWebsiteRecord(record)
+    if (success) {
+        Response(Status.ACCEPTED)
+    } else {
+        Response(Status.BAD_REQUEST)
+    }
 }
 
 private fun hello() = "/" bind Method.GET to { Response(Status.OK).body("Hello World!") }
