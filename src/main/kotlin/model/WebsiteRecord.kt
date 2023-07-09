@@ -6,6 +6,10 @@ import org.http4k.format.KotlinxSerialization.auto
 import org.http4k.lens.asResult
 import kotlin.time.Duration
 
+/**
+ * Website record used to keep track of websites to crawl.
+ * URL is used as a unique identifier of a record.
+ */
 @Serializable
 data class WebsiteRecord(
     val url: String,
