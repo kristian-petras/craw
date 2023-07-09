@@ -17,6 +17,8 @@ dependencies {
     implementation("org.http4k:http4k-server-jetty")
     implementation("org.http4k:http4k-client-okhttp")
 
+    implementation("org.jsoup:jsoup:1.16.1")
+
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
     implementation("org.http4k:http4k-format-kotlinx-serialization")
 
