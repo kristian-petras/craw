@@ -20,7 +20,7 @@ class Crawler(private val client: HttpHandler) {
             val document = Jsoup.parse(response.bodyString())
             title = document.title()
             links = document.select("a[href]")
-                .map { link -> link.attr("abs:href") }
+                .map { link -> link.attr("href") }
                 .filter { regex.matches(it) }
         }
 
