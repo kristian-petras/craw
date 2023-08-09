@@ -1,7 +1,12 @@
 package application
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import model.CrawledRecord
 import org.http4k.core.HttpHandler
+import org.http4k.core.Method
 import org.http4k.core.Request
 import org.jsoup.Jsoup
 import org.slf4j.Logger
@@ -9,6 +14,21 @@ import org.slf4j.LoggerFactory
 import kotlin.time.measureTime
 
 class Crawler(private val client: HttpHandler) {
+
+    /**
+     * Parallel and recursive crawling
+     */
+    suspend fun recursiveCrawl(request: Request, matcher: String) : List<CrawledRecord> = coroutineScope {
+        val record = crawl(request, matcher)
+        val next = record.links.map {
+            async(Dispatchers.IO) {
+                recursiveCrawl(Request(Method.GET, it), matcher)
+            }
+        }
+
+        listOf(record) + next.awaitAll().flatten()
+    }
+
     fun crawl(request: Request, matcher: String) : CrawledRecord {
         val url = request.uri.toString()
         logger.info("Started to crawl request $url")

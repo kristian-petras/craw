@@ -1,10 +1,10 @@
 
+import TestHelper.website
 import application.DataRepository
 import application.LocalDataRepository
 import application.app
 import com.natpryce.hamkrest.*
 import com.natpryce.hamkrest.assertion.assertThat
-import model.WebsiteRecord
 import org.http4k.core.*
 import org.http4k.format.KotlinxSerialization.asJsonObject
 import org.http4k.format.KotlinxSerialization.json
@@ -15,20 +15,6 @@ import org.http4k.testing.hasApprovedContent
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import kotlin.time.Duration
-
-
-private val website =
-    WebsiteRecord(
-        url = "www.google.com",
-        boundaryRegExp = "",
-        periodicity = Duration.ZERO,
-        label = "",
-        active = true,
-        tags = emptyList(),
-        lastExecution = "",
-        executionStatus = false
-    )
 
 @ExtendWith(ApprovalTest::class)
 internal class SiteManagementTest {

@@ -28,7 +28,6 @@ data class WebsiteRecord(
     val label: String,
     val active: Boolean,
     val tags: List<String>,
-    val lastExecution: String,
     val executionStatus: Boolean
 ) {
     companion object {

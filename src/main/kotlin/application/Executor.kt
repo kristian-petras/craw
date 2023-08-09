@@ -1,6 +1,6 @@
 package application
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.flowOf
@@ -14,21 +14,9 @@ import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
-class Executor(client: HttpHandler) {
-    private val timeProvider = TimeProvider { Instant.now() }
+class Executor(client: HttpHandler, timeProvider: TimeProvider) {
     private val scheduler = Scheduler<WebsiteRecord>(timeProvider)
     private val crawler = Crawler(client)
-
-    suspend fun crawl(request: Request, matcher: String) : List<CrawledRecord> = coroutineScope {
-        val record = crawler.crawl(request, matcher)
-        val next = record.links.map {
-            async(Dispatchers.IO) {
-                crawl(Request(GET, it), matcher)
-            }
-        }
-
-        listOf(record) + next.awaitAll().flatten()
-    }
 
     suspend fun schedule(record: WebsiteRecord, timestamp: Instant) = scheduler.schedule(Event(timestamp, record))
 
@@ -37,7 +25,7 @@ class Executor(client: HttpHandler) {
         .subscribe()
         .flatMapMerge {
             val request = Request(GET, it.url)
-            val records = crawl(request, it.boundaryRegExp)
+            val records = crawler.recursiveCrawl(request, it.boundaryRegExp)
             val totalTime = records
                 .sumOf { record -> record.crawlTime.toDouble(DurationUnit.MILLISECONDS) }
                 .toDuration(DurationUnit.MILLISECONDS)
