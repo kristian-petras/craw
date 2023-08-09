@@ -20,7 +20,7 @@ class Crawler(private val client: HttpHandler) {
      */
     suspend fun recursiveCrawl(request: Request, matcher: String) : List<CrawledRecord> = coroutineScope {
         val record = crawl(request, matcher)
-        val next = record.links.map {
+        val next = record.crawledLinks.map {
             async(Dispatchers.IO) {
                 recursiveCrawl(Request(Method.GET, it), matcher)
             }
@@ -34,6 +34,7 @@ class Crawler(private val client: HttpHandler) {
         logger.info("Started to crawl request $url")
         val regex = Regex(matcher)
         val links: List<String>
+        val crawledLinks: List<String>
         val title: String
         val crawlTime = measureTime {
             val response = client(request)
@@ -41,10 +42,11 @@ class Crawler(private val client: HttpHandler) {
             title = document.title()
             links = document.select("a[href]")
                 .map { link -> link.attr("href") }
+            crawledLinks = links
                 .filter { regex.matches(it) }
         }
 
-        return CrawledRecord(url, crawlTime, title, links)
+        return CrawledRecord(url, crawlTime, title, links, crawledLinks)
             .also { logger.info("Crawler finished crawling of $url with $it") }
     }
 

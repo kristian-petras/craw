@@ -65,7 +65,7 @@ internal class CrawlerTest {
                         has(CrawledRecord::title, equalTo("1")),
                         has(CrawledRecord::url, equalTo("1")),
                         has(
-                            CrawledRecord::links, equalTo(
+                            CrawledRecord::crawledLinks, equalTo(
                                 listOf("2")
                             )
                         )
@@ -76,7 +76,7 @@ internal class CrawlerTest {
                         has(CrawledRecord::title, equalTo("2")),
                         has(CrawledRecord::url, equalTo("2")),
                         has(
-                            CrawledRecord::links, equalTo(
+                            CrawledRecord::crawledLinks, equalTo(
                                 listOf("3", "4")
                             )
                         )
@@ -87,7 +87,7 @@ internal class CrawlerTest {
                         has(CrawledRecord::title, equalTo("3")),
                         has(CrawledRecord::url, equalTo("3")),
                         has(
-                            CrawledRecord::links, equalTo(emptyList())
+                            CrawledRecord::crawledLinks, equalTo(emptyList())
                         )
                     )
                 ),
@@ -96,7 +96,7 @@ internal class CrawlerTest {
                         has(CrawledRecord::title, equalTo("4")),
                         has(CrawledRecord::url, equalTo("4")),
                         has(
-                            CrawledRecord::links, equalTo(emptyList())
+                            CrawledRecord::crawledLinks, equalTo(emptyList())
                         )
                     )
                 ),
