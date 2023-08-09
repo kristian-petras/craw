@@ -25,7 +25,7 @@ class Scheduler<T>(private val timeProvider: TimeProvider) {
     suspend fun schedule(event: Event<T>) = eventChannel.send(event)
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun subscribe() : Flow<Event<T>> = flow {
+    fun subscribe() : Flow<T> = flow {
         while (true) {
             select {
                 eventChannel.onReceive {
@@ -36,7 +36,7 @@ class Scheduler<T>(private val timeProvider: TimeProvider) {
                     val event = eventQueue.poll()
                         ?: error("Update flow timeout should wait indefinitely until an event is injected.")
                     logger.info("Emitting event $event")
-                    emit(event)
+                    emit(event.payload)
                 }
             }
         }

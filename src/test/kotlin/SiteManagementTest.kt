@@ -9,7 +9,6 @@ import org.http4k.core.*
 import org.http4k.format.KotlinxSerialization.asJsonObject
 import org.http4k.format.KotlinxSerialization.json
 import org.http4k.hamkrest.hasStatus
-import org.http4k.lens.*
 import org.http4k.testing.ApprovalTest
 import org.http4k.testing.Approver
 import org.http4k.testing.hasApprovedContent
@@ -45,11 +44,11 @@ internal class SiteManagementTest {
     @Test
     fun `client should be able to show all records`(approver: Approver) {
         // given
+        // - there is a website in the repository
         val request = Request(Method.GET, "/records")
+        repository.addWebsiteRecord(website)
 
         // when
-        // - there is a website in repository
-        repository.addWebsiteRecord(website)
         val response = application(request)
 
         // then

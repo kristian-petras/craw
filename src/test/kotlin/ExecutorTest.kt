@@ -103,36 +103,8 @@ internal class ExecutorTest {
         )
     }
 
+    @Test
+    fun `executor should execute scheduled crawling`() {
 
-
-    // execution schedule ->
-    // priority queue + scheduler
-    //
-
-//    private lateinit var crawler: Crawler
-//    @BeforeEach
-//    fun setup() {
-//        val app = { _: Request -> Response(Status.OK).body(html) }
-//        crawler = Crawler(app)
-//    }
-//
-//    @Test
-//    fun `executor ignores inactive records`() {
-//        // given
-//        val requestUrl = "https://www.example.com"
-//        val request = Request(Method.GET, requestUrl)
-//
-//        // when
-//        val result = crawler.crawl(request, ".*")
-//
-//        // then
-//        assertThat(result.url, equalTo(requestUrl))
-//        assertThat(result.links, allOf(
-//            hasElement("https://www.example.com"),
-//            hasElement("https://www.google.com"),
-//            hasElement("https://www.openai.com"),
-//            hasElement("https://www.github.com"),
-//            hasElement("https://www.wikipedia.org")
-//        ).and(hasSize(equalTo(5))))
-//    }
+    }
 }

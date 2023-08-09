@@ -43,7 +43,7 @@ class SchedulerTest {
             .catch { }
             .toList()
 
-        assertThat(events, hasElement(event).and(hasSize(equalTo(1))))
+        assertThat(events, hasElement(Unit).and(hasSize(equalTo(1))))
     }
 
     @Test
@@ -66,7 +66,7 @@ class SchedulerTest {
             .catch { }
             .toList()
 
-        assertThat(events, hasElement(event).and(hasSize(equalTo(1))))
+        assertThat(events, hasElement(Unit).and(hasSize(equalTo(1))))
     }
 
     private fun TestScope.mockTimeProvider(): TimeProvider {
