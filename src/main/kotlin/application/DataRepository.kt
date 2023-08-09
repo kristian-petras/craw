@@ -1,10 +1,13 @@
 package application
 
+import model.Execution
 import model.WebsiteRecord
 
 interface DataRepository {
-    fun getWebsiteRecords(): List<WebsiteRecord>
-    fun addWebsiteRecord(record: WebsiteRecord) : Boolean
-    fun modifyWebsiteRecord(website: WebsiteRecord) : Boolean
-    fun deleteWebsiteRecord(website: WebsiteRecord) : Boolean
+    fun getAll(): List<WebsiteRecord>
+    fun add(record: WebsiteRecord)
+    fun modify(record: WebsiteRecord) : Boolean
+    fun delete(record: WebsiteRecord) : Boolean
+    fun get(record: WebsiteRecord) : Execution?
+    fun add(execution: Execution)
 }

@@ -32,7 +32,7 @@ internal class SiteManagementTest {
         // given
         // - there is a website in the repository
         val request = Request(Method.GET, "/records")
-        repository.addWebsiteRecord(website)
+        repository.add(website)
 
         // when
         val response = application(request)
@@ -53,7 +53,7 @@ internal class SiteManagementTest {
 
         // then
         assertThat(response, hasStatus(Status.ACCEPTED))
-        assertThat(repository.getWebsiteRecords(), hasElement(website))
+        assertThat(repository.getAll(), hasElement(website))
     }
 
     @Test
@@ -66,31 +66,31 @@ internal class SiteManagementTest {
 
         // when
         // - original website is present in the repository
-        repository.addWebsiteRecord(website)
+        repository.add(website)
         val response = application(request)
 
         // then
         assertThat(response, hasStatus(Status.ACCEPTED))
-        assertThat(repository.getWebsiteRecords(), hasElement(modifiedWebsite).and(hasSize(equalTo(1))))
+        assertThat(repository.getAll(), hasElement(modifiedWebsite).and(hasSize(equalTo(1))))
     }
 
     @Test
     fun `client should not be able to modify non existing record`() {
         // given
-        val modifiedWebsite = website.copy(url = "www.example.com")
+        val modifiedWebsite = website.copy(id = 2, url = "www.example.com")
         val request = Request(Method.PUT, "/record").with(
             Body.json().toLens() of modifiedWebsite.asJsonObject()
         )
 
         // when
         // - original website is present in the repository
-        repository.addWebsiteRecord(website)
+        repository.add(website)
         val response = application(request)
 
         // then
         // - repository remains unchanged
         assertThat(response, hasStatus(Status.BAD_REQUEST))
-        assertThat(repository.getWebsiteRecords(), hasElement(website).and(hasSize(equalTo(1))))
+        assertThat(repository.getAll(), hasElement(website).and(hasSize(equalTo(1))))
     }
 
     @Test
@@ -102,30 +102,30 @@ internal class SiteManagementTest {
 
         // when
         // - original website is present in the repository
-        repository.addWebsiteRecord(website)
+        repository.add(website)
         val response = application(request)
 
         // then
         assertThat(response, hasStatus(Status.ACCEPTED))
-        assertThat(repository.getWebsiteRecords(), hasElement(website).not().and(isEmpty))
+        assertThat(repository.getAll(), hasElement(website).not().and(isEmpty))
     }
 
     @Test
     fun `client should not be able to delete not existing record`() {
         // given
-        val modifiedWebsite = website.copy(url = "www.example.com")
+        val modifiedWebsite = website.copy(id = 2, url = "www.example.com")
         val request = Request(Method.DELETE, "/record").with(
             Body.json().toLens() of modifiedWebsite.asJsonObject()
         )
 
         // when
         // - original website is present in the repository
-        repository.addWebsiteRecord(website)
+        repository.add(website)
         val response = application(request)
 
         // then
         // - repository remains unchanged
         assertThat(response, hasStatus(Status.BAD_REQUEST))
-        assertThat(repository.getWebsiteRecords(), hasElement(website).and(hasSize(equalTo(1))))
+        assertThat(repository.getAll(), hasElement(website).and(hasSize(equalTo(1))))
     }
 }

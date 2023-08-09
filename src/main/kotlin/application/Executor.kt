@@ -4,13 +4,13 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.flowOf
-import model.CrawledRecord
+import model.Execution
 import model.WebsiteRecord
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method.GET
 import org.http4k.core.Request
 import java.time.Instant
-import kotlin.time.Duration
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
@@ -18,7 +18,8 @@ class Executor(client: HttpHandler, private val timeProvider: TimeProvider) {
     private val scheduler = Scheduler<WebsiteRecord>(timeProvider)
     private val crawler = Crawler(client)
 
-    suspend fun schedule(record: WebsiteRecord, timestamp: Instant) = scheduler.schedule(Event(timestamp, record))
+    private val counter = AtomicLong()
+    fun schedule(record: WebsiteRecord, timestamp: Instant) = scheduler.schedule(Event(timestamp, record))
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun subscribe(): Flow<Execution> = scheduler
@@ -30,18 +31,8 @@ class Executor(client: HttpHandler, private val timeProvider: TimeProvider) {
                 .sumOf { record -> record.crawlTime.toDouble(DurationUnit.MILLISECONDS) }
                 .toDuration(DurationUnit.MILLISECONDS)
 
-            val execution = Execution(it, records, totalTime, timeProvider.now(), false)
+            val execution = Execution(it.id, counter.incrementAndGet(), records, totalTime, timeProvider.now(), false)
             flowOf(execution)
         }
 }
 
-/**
- * Execution is used to store crawled
- */
-data class Execution(
-    val record: WebsiteRecord,
-    val crawledRecords: List<CrawledRecord>,
-    val totalTime: Duration,
-    val lastExecutionTimestamp: Instant,
-    val lastExecutionStatus: Boolean
-)

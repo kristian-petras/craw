@@ -1,19 +1,36 @@
 package application
 
+import model.Execution
 import model.WebsiteRecord
 
 class LocalDataRepository : DataRepository {
     // Think about making it a map.
-    private val websiteRecords = mutableListOf<WebsiteRecord>()
-    override fun getWebsiteRecords(): List<WebsiteRecord> = websiteRecords
-    override fun addWebsiteRecord(record: WebsiteRecord) = websiteRecords.add(record)
-    override fun modifyWebsiteRecord(website: WebsiteRecord): Boolean {
-        val success = websiteRecords.removeIf { website.url == it.url }
-        if (success) {
-            websiteRecords.add(website)
-        }
-        return success
+    private val records = mutableMapOf<Long, WebsiteRecord>()
+    private val executions = mutableMapOf<Long, Execution>()
+    override fun getAll(): List<WebsiteRecord> = records.values.toList()
+    override fun add(record: WebsiteRecord) {
+        records[record.id] = record
     }
 
-    override fun deleteWebsiteRecord(website: WebsiteRecord): Boolean = websiteRecords.remove(website)
+    override fun add(execution: Execution) {
+        executions[execution.recordId] = execution
+    }
+
+    override fun modify(record: WebsiteRecord): Boolean {
+        if (!records.contains(record.id)) {
+            return false
+        }
+        records[record.id] = record
+        return true
+    }
+
+    override fun delete(record: WebsiteRecord): Boolean {
+        executions.remove(record.id)
+        records.remove(record.id) ?: return false
+        return true
+    }
+
+    override fun get(record: WebsiteRecord): Execution? {
+        return executions[record.id]
+    }
 }

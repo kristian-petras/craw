@@ -16,26 +16,27 @@ fun app(repository: DataRepository) = routes(
 )
 
 private fun getRecords(repository: DataRepository) = "/records" bind Method.GET to {
-    val records = repository.getWebsiteRecords()
+    val records = repository.getAll()
     Response(Status.OK)
         .with(Body.json().toLens() of records.asJsonObject())
 }
 
 private fun addRecord(repository: DataRepository) = "/record" bind Method.POST to {
     handleRequest(it) { record ->
-        repository.addWebsiteRecord(record)
+        repository.add(record)
+        true
     }
 }
 
 private fun modifyRecord(repository: DataRepository) = "/record" bind Method.PUT to {
     handleRequest(it) { record ->
-        repository.modifyWebsiteRecord(record)
+        repository.modify(record)
     }
 }
 
 private fun deleteRecord(repository: DataRepository) = "/record" bind Method.DELETE to {
     handleRequest(it) { record ->
-        repository.deleteWebsiteRecord(record)
+        repository.delete(record)
     }
 }
 
