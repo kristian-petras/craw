@@ -4,12 +4,6 @@ import com.natpryce.hamkrest.*
 import com.natpryce.hamkrest.assertion.assertThat
 import kotlinx.coroutines.test.runTest
 import model.CrawledRecord
-import org.http4k.core.Method
-import org.http4k.core.Request
-import org.http4k.core.Response
-import org.http4k.core.Status.Companion.OK
-import org.http4k.routing.bind
-import org.http4k.routing.routes
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
@@ -20,29 +14,29 @@ internal class CrawlerTest {
 
     @BeforeEach
     fun setup() {
-        val app = routes(
-            recursiveUrl bind Method.GET to {
-                Response(OK).body(
-                    """
-                <title>1</title>
-                <a href="2">Next site</a>
-            """.trimIndent()
-                )
-            },
-            "2" bind Method.GET to {
-                Response(OK).body(
-                    """
-                <title>2</title>
-                <a href="3">Next site</a>
-                <a href="4">Next site</a>
-            """.trimIndent()
-                )
-            },
-            "3" bind Method.GET to { Response(OK).body("<title>3</title>") },
-            "4" bind Method.GET to { Response(OK).body("<title>4</title>") },
-            singleUrl bind Method.GET to { Response(OK).body(html) }
-        )
-        crawler = Crawler(app)
+//        val app = routes(
+//            recursiveUrl bind Method.GET to {
+//                Response(OK).body(
+//                    """
+//                <title>1</title>
+//                <a href="2">Next site</a>
+//            """.trimIndent()
+//                )
+//            },
+//            "2" bind Method.GET to {
+//                Response(OK).body(
+//                    """
+//                <title>2</title>
+//                <a href="3">Next site</a>
+//                <a href="4">Next site</a>
+//            """.trimIndent()
+//                )
+//            },
+//            "3" bind Method.GET to { Response(OK).body("<title>3</title>") },
+//            "4" bind Method.GET to { Response(OK).body("<title>4</title>") },
+//            singleUrl bind Method.GET to { Response(OK).body(html) }
+//        )
+        crawler = Crawler()
     }
 
     private val recursiveUrl = "1"
@@ -52,10 +46,9 @@ internal class CrawlerTest {
     @Test
     fun `crawler should crawl pages recursively`() = runTest {
         // given
-        val request = Request(Method.GET, recursiveUrl)
 
         // when
-        val records = crawler.recursiveCrawl(request, ".*")
+        val records = crawler.recursiveCrawl(recursiveUrl, ".*")
 
         // then
         assertThat(
@@ -108,10 +101,9 @@ internal class CrawlerTest {
     @Test
     fun `crawler is able to gather hyperlinks`() {
         // given
-        val request = Request(Method.GET, singleUrl)
 
         // when
-        val result = crawler.crawl(request, ".*")
+        val result = crawler.crawl(singleUrl, ".*")
 
         // then
         assertThat(result.url, equalTo(singleUrl))
@@ -129,10 +121,9 @@ internal class CrawlerTest {
     @Test
     fun `crawler is able to gather title`() {
         // given
-        val request = Request(Method.GET, singleUrl)
 
         // when
-        val result = crawler.crawl(request, ".*")
+        val result = crawler.crawl(singleUrl, ".*")
 
         // then
         assertThat(result.url, equalTo(singleUrl))
@@ -142,10 +133,9 @@ internal class CrawlerTest {
     @Test
     fun `crawler is able to gather hyperlinks matched by regex`() {
         // given
-        val request = Request(Method.GET, singleUrl)
 
         // when
-        val result = crawler.crawl(request, ".*\\.org$")
+        val result = crawler.crawl(singleUrl, ".*\\.org$")
 
         // then
         assertThat(result.url, equalTo(singleUrl))
@@ -155,10 +145,9 @@ internal class CrawlerTest {
     @Test
     fun `crawler does not crash on site without matches`() {
         // given
-        val request = Request(Method.GET, singleUrl)
 
         // when
-        val result = crawler.crawl(request, ".*\\.cz$")
+        val result = crawler.crawl(singleUrl, ".*\\.cz$")
 
         // then
         assertThat(result.url, equalTo(singleUrl))
@@ -168,11 +157,10 @@ internal class CrawlerTest {
     @Test
     fun `crawler is able to crawl multiple times`() {
         // given
-        val request = Request(Method.GET, singleUrl)
 
         // when
-        crawler.crawl(request, ".*")
-        val result = crawler.crawl(request, ".*\\.cz$")
+        crawler.crawl(singleUrl, ".*")
+        val result = crawler.crawl(singleUrl, ".*\\.cz$")
 
         // then
         assertThat(result.url, equalTo(singleUrl))

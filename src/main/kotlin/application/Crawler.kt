@@ -5,40 +5,40 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import model.CrawledRecord
-import org.http4k.core.HttpHandler
-import org.http4k.core.Method
-import org.http4k.core.Request
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import org.jsoup.Jsoup
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import kotlin.time.measureTime
 
-class Crawler(private val client: HttpHandler) {
-
+class Crawler {
+    private val client = OkHttpClient()
+    private val builder = Request.Builder()
     /**
      * Parallel and recursive crawling
      */
-    suspend fun recursiveCrawl(request: Request, matcher: String) : List<CrawledRecord> = coroutineScope {
-        val record = crawl(request, matcher)
+    suspend fun recursiveCrawl(requestUrl: String, matcher: String) : List<CrawledRecord> = coroutineScope {
+        val record = crawl(requestUrl, matcher)
         val next = record.matchedLinks.map {
             async(Dispatchers.IO) {
-                recursiveCrawl(Request(Method.GET, it), matcher)
+                recursiveCrawl(requestUrl, matcher)
             }
         }
 
         listOf(record) + next.awaitAll().flatten()
     }
 
-    fun crawl(request: Request, matcher: String) : CrawledRecord {
-        val url = request.uri.toString()
-        logger.info("Started to crawl request $url")
+    fun crawl(requestUrl: String, matcher: String) : CrawledRecord {
+        val request = builder.url(requestUrl).get().build()
+        logger.info("Started to crawl request $requestUrl")
         val regex = Regex(matcher)
         val links: List<String>
         val crawledLinks: List<String>
         val title: String
         val crawlTime = measureTime {
-            val response = client(request)
-            val document = Jsoup.parse(response.bodyString())
+            val response = client.newCall(request).execute()
+            val document = Jsoup.parse(response.body.string())
             title = document.title()
             links = document.select("a[href]")
                 .map { link -> link.attr("href") }
@@ -46,8 +46,8 @@ class Crawler(private val client: HttpHandler) {
                 .filter { regex.matches(it) }
         }
 
-        return CrawledRecord(url, crawlTime, title, links, crawledLinks)
-            .also { logger.info("Crawler finished crawling of $url with $it") }
+        return CrawledRecord(requestUrl, crawlTime, title, links, crawledLinks)
+            .also { logger.info("Crawler finished crawling of $requestUrl with $it") }
     }
 
     private companion object {

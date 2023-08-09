@@ -2,7 +2,6 @@
 
 import TestHelper.mockTimeProvider
 import TestHelper.timestamp
-import application.Event
 import application.Scheduler
 import com.natpryce.hamkrest.and
 import com.natpryce.hamkrest.assertion.assertThat
@@ -14,6 +13,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
+import model.Event
 import org.junit.jupiter.api.Test
 
 class SchedulerTest {

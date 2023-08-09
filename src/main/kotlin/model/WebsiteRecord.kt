@@ -1,9 +1,6 @@
 package model
 
 import kotlinx.serialization.Serializable
-import org.http4k.core.Body
-import org.http4k.format.KotlinxSerialization.auto
-import org.http4k.lens.asResult
 import kotlin.time.Duration
 
 /**
@@ -28,9 +25,5 @@ data class WebsiteRecord(
     val active: Boolean,
     val tags: List<String>
 ) : Comparable<WebsiteRecord> {
-    companion object {
-        val lens = Body.auto<WebsiteRecord>().toLens().asResult()
-    }
-
     override fun compareTo(other: WebsiteRecord): Int = id.compareTo(other.id)
 }
