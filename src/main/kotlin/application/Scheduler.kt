@@ -39,7 +39,6 @@ class Scheduler<T : Comparable<T>>(private val timeProvider: TimeProvider) {
         while (true) {
             select {
                 eventChannel.onReceive {
-                    logger.info("Scheduling event: $it")
                     eventQueue.add(it)
                 }
                 onTimeout(durationUntilNextEvent()) {

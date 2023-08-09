@@ -22,7 +22,7 @@ class Crawler {
         val record = crawl(requestUrl, matcher)
         val next = record.matchedLinks.map {
             async(Dispatchers.IO) {
-                recursiveCrawl(requestUrl, matcher)
+                recursiveCrawl(it, matcher)
             }
         }
 
@@ -34,7 +34,7 @@ class Crawler {
         logger.info("Started to crawl request $requestUrl")
         val regex = Regex(matcher)
         val links: List<String>
-        val crawledLinks: List<String>
+        val matchedLinks: List<String>
         val title: String
         val crawlTime = measureTime {
             val response = client.newCall(request).execute()
@@ -42,11 +42,11 @@ class Crawler {
             title = document.title()
             links = document.select("a[href]")
                 .map { link -> link.attr("href") }
-            crawledLinks = links
+            matchedLinks = links
                 .filter { regex.matches(it) }
         }
 
-        return CrawledRecord(requestUrl, crawlTime, title, links, crawledLinks)
+        return CrawledRecord(requestUrl, crawlTime, title, links, matchedLinks)
             .also { logger.info("Crawler finished crawling of $requestUrl with $it") }
     }
 

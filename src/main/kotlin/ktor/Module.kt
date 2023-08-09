@@ -12,7 +12,7 @@ fun Application.module() {
     val timeProvider = TimeProvider { Instant.now() }
     val repository = LocalDataRepository()
     val executor = Executor(timeProvider)
-    val app = App(executor, repository)
+    val app = App(executor, repository, timeProvider)
     launch { app.run() }
     configureRouting(app.getClient())
     configureSerialization()

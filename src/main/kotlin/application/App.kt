@@ -19,7 +19,7 @@ typealias AddAwaitable = Pair<CompletableDeferred<Unit>, WebsiteRecord>
 typealias ModifyAwaitable = Pair<CompletableDeferred<Boolean>, WebsiteRecord>
 typealias DeleteAwaitable = Pair<CompletableDeferred<Boolean>, WebsiteRecord>
 
-class App(private val executor: Executor, private val repository: DataRepository) {
+class App(private val executor: Executor, private val repository: DataRepository, private val timeProvider: TimeProvider) {
     inner class Client internal constructor(
         private val get: SendChannel<GetAwaitable>,
         private val add: SendChannel<AddAwaitable>,
@@ -65,7 +65,9 @@ class App(private val executor: Executor, private val repository: DataRepository
                 executionChannel.onReceive {
                     repository.add(it)
                     val record = repository.getRecord(it.recordId)!!
-                    executor.schedule(record, it.lastExecutionTimestamp + record.periodicity)
+                    if (record.active) {
+                        executor.schedule(record, it.lastExecutionTimestamp + record.periodicity)
+                    }
                 }
                 getChannel.onReceive {
                     val records = repository.getAll()
@@ -73,14 +75,21 @@ class App(private val executor: Executor, private val repository: DataRepository
                 }
                 addChannel.onReceive { (result, record) ->
                     repository.add(record)
+                    if (record.active) {
+                        executor.schedule(record, timeProvider.now())
+                    }
                     result.complete(Unit)
                 }
                 modifyChannel.onReceive { (result, record) ->
                     val success = repository.modify(record)
+                    if (record.active) {
+                        executor.schedule(record, timeProvider.now())
+                    }
                     result.complete(success)
                 }
                 deleteChannel.onReceive { (result, record) ->
                     val success = repository.delete(record)
+                    // TODO: remove all executions as well?
                     result.complete(success)
                 }
             }
