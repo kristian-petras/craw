@@ -59,4 +59,31 @@ class SchedulerTest {
 
         assertThat(events, hasElement(Unit).and(hasSize(equalTo(1))))
     }
+
+    @Test
+    fun `scheduler returns events based on specified event time`() = runTest {
+        // given
+        val timeProvider = mockTimeProvider()
+        val scheduler = Scheduler<Int>(timeProvider)
+
+        val first = Event(timestamp.plusSeconds(1), 1)
+        val second = Event(timestamp.plusSeconds(2), 2)
+
+        // when
+        launch {
+            delay(500)
+            scheduler.schedule(first)
+        }
+        scheduler.schedule(second)
+
+        // then
+        val events = scheduler
+            .subscribe()
+            .catch { }
+            .toList()
+
+        assertThat(events, hasSize(equalTo(2)))
+        assertThat(events[0], equalTo(first.payload))
+        assertThat(events[1], equalTo(second.payload))
+    }
 }
