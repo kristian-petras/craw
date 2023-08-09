@@ -4,7 +4,6 @@ import model.Execution
 import model.WebsiteRecord
 
 class LocalDataRepository : DataRepository {
-    // Think about making it a map.
     private val records = mutableMapOf<Long, WebsiteRecord>()
     private val executions = mutableMapOf<Long, Execution>()
     override fun getAll(): List<WebsiteRecord> = records.values.toList()
@@ -30,7 +29,6 @@ class LocalDataRepository : DataRepository {
         return true
     }
 
-    override fun get(record: WebsiteRecord): Execution? {
-        return executions[record.id]
-    }
+    override fun getExecution(recordId: Long): Execution? = executions[recordId]
+    override fun getRecord(recordId: Long): WebsiteRecord? = records[recordId]
 }

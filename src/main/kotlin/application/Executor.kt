@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicLong
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
-class Executor(client: HttpHandler, private val timeProvider: TimeProvider) {
+class Executor(private val timeProvider: TimeProvider, client: HttpHandler) {
     private val scheduler = Scheduler<WebsiteRecord>(timeProvider)
     private val crawler = Crawler(client)
 

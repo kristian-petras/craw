@@ -8,6 +8,7 @@ interface DataRepository {
     fun add(record: WebsiteRecord)
     fun modify(record: WebsiteRecord) : Boolean
     fun delete(record: WebsiteRecord) : Boolean
-    fun get(record: WebsiteRecord) : Execution?
+    fun getExecution(recordId: Long) : Execution?
+    fun getRecord(recordId: Long) : WebsiteRecord?
     fun add(execution: Execution)
 }
