@@ -8,7 +8,7 @@ import kotlin.time.Duration
 
 /**
  * Website record used to keep track of websites to crawl.
- * URL is used as a unique identifier of a record.
+ * [id] is used as a unique identifier of a record.
  *
  * - URL - where the crawler should start.
  * - Boundary RegExp - when the crawler found a link, the link must match this expression in order to be followed.
@@ -17,20 +17,20 @@ import kotlin.time.Duration
  * - Label - user given label.
  * - Active / Inactive - if inactive, the site is not crawled based on the Periodicity.
  * - Tags - user given strings.
- * - Last execution - Timestamp of last crawler execution.
- * - Execution status - Status of last crawling.
  */
 @Serializable
 data class WebsiteRecord(
+    val id: Long,
     val url: String,
     val boundaryRegExp: String,
     val periodicity: Duration,
     val label: String,
     val active: Boolean,
-    val tags: List<String>,
-    val executionStatus: Boolean
-) {
+    val tags: List<String>
+) : Comparable<WebsiteRecord> {
     companion object {
         val lens = Body.auto<WebsiteRecord>().toLens().asResult()
     }
+
+    override fun compareTo(other: WebsiteRecord): Int = id.compareTo(other.id)
 }

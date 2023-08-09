@@ -11,13 +11,13 @@ import kotlin.time.Duration
 object TestHelper {
     val website =
         WebsiteRecord(
+            id = 1,
             url = "www.google.com",
             boundaryRegExp = "",
             periodicity = Duration.ZERO,
             label = "",
             active = true,
-            tags = emptyList(),
-            executionStatus = false
+            tags = emptyList()
         )
 
     val timestamp: Instant = Instant.parse("2023-07-01T10:00:00Z")

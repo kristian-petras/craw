@@ -14,14 +14,14 @@ import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
-class Executor(client: HttpHandler, timeProvider: TimeProvider) {
+class Executor(client: HttpHandler, private val timeProvider: TimeProvider) {
     private val scheduler = Scheduler<WebsiteRecord>(timeProvider)
     private val crawler = Crawler(client)
 
     suspend fun schedule(record: WebsiteRecord, timestamp: Instant) = scheduler.schedule(Event(timestamp, record))
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun subscribe() : Flow<Execution> = scheduler
+    fun subscribe(): Flow<Execution> = scheduler
         .subscribe()
         .flatMapMerge {
             val request = Request(GET, it.url)
@@ -30,9 +30,18 @@ class Executor(client: HttpHandler, timeProvider: TimeProvider) {
                 .sumOf { record -> record.crawlTime.toDouble(DurationUnit.MILLISECONDS) }
                 .toDuration(DurationUnit.MILLISECONDS)
 
-            val execution = Execution(it, records, totalTime)
+            val execution = Execution(it, records, totalTime, timeProvider.now(), false)
             flowOf(execution)
         }
 }
 
-data class Execution(val record: WebsiteRecord, val crawledRecords: List<CrawledRecord>, val totalTime: Duration)
+/**
+ * Execution is used to store crawled
+ */
+data class Execution(
+    val record: WebsiteRecord,
+    val crawledRecords: List<CrawledRecord>,
+    val totalTime: Duration,
+    val lastExecutionTimestamp: Instant,
+    val lastExecutionStatus: Boolean
+)

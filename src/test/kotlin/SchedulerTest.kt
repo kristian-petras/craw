@@ -21,9 +21,9 @@ class SchedulerTest {
     fun `scheduler should wait until next execution`() = runTest {
         // given
         val timeProvider = mockTimeProvider()
-        val scheduler = Scheduler<Unit>(timeProvider)
+        val scheduler = Scheduler<Int>(timeProvider)
 
-        val event = Event(timestamp.plusSeconds(1), Unit)
+        val event = Event(timestamp.plusSeconds(1), 1)
 
         // when
         scheduler.schedule(event)
@@ -34,16 +34,16 @@ class SchedulerTest {
             .catch { }
             .toList()
 
-        assertThat(events, hasElement(Unit).and(hasSize(equalTo(1))))
+        assertThat(events, hasElement(1).and(hasSize(equalTo(1))))
     }
 
     @Test
     fun `scheduler should be able to inject events afterwards`() = runTest {
         // given
         val timeProvider = mockTimeProvider()
-        val scheduler = Scheduler<Unit>(timeProvider)
+        val scheduler = Scheduler<Int>(timeProvider)
 
-        val event = Event(timestamp.plusSeconds(1), Unit)
+        val event = Event(timestamp.plusSeconds(1), 1)
 
         // when
         launch {
@@ -57,7 +57,36 @@ class SchedulerTest {
             .catch { }
             .toList()
 
-        assertThat(events, hasElement(Unit).and(hasSize(equalTo(1))))
+        assertThat(events, hasElement(1).and(hasSize(equalTo(1))))
+    }
+
+    @Test
+    fun `scheduler should be able to remove events after scheduling before execution`() = runTest {
+        // given
+        val timeProvider = mockTimeProvider()
+        val scheduler = Scheduler<String>(timeProvider)
+
+        val removedPayload = "removed"
+        val notRemovedPayload = "not-removed"
+
+        val eventToBeRemoved = Event(timestamp.plusSeconds(1), removedPayload)
+        val eventToNotBeRemoved = Event(timestamp.plusSeconds(1), notRemovedPayload)
+
+        // when
+        scheduler.schedule(eventToBeRemoved)
+        scheduler.schedule(eventToNotBeRemoved)
+        launch {
+            delay(500)
+            scheduler.remove(removedPayload)
+        }
+
+        // then
+        val events = scheduler
+            .subscribe()
+            .catch { }
+            .toList()
+
+        assertThat(events, hasElement(notRemovedPayload).and(hasSize(equalTo(1))))
     }
 
     @Test

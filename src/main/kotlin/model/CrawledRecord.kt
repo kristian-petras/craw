@@ -7,5 +7,5 @@ data class CrawledRecord(
     val crawlTime: Duration,
     val title: String,
     val links: List<String>,
-    val crawledLinks: List<String>
+    val matchedLinks: List<String>
 )

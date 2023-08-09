@@ -2,4 +2,4 @@ package application
 
 import java.time.Instant
 
-data class Event<T>(val timestamp: Instant, val payload: T)
+data class Event<T : Comparable<T>>(val timestamp: Instant, val payload: T)

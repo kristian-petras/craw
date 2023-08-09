@@ -65,7 +65,7 @@ internal class CrawlerTest {
                         has(CrawledRecord::title, equalTo("1")),
                         has(CrawledRecord::url, equalTo("1")),
                         has(
-                            CrawledRecord::crawledLinks, equalTo(
+                            CrawledRecord::matchedLinks, equalTo(
                                 listOf("2")
                             )
                         )
@@ -76,7 +76,7 @@ internal class CrawlerTest {
                         has(CrawledRecord::title, equalTo("2")),
                         has(CrawledRecord::url, equalTo("2")),
                         has(
-                            CrawledRecord::crawledLinks, equalTo(
+                            CrawledRecord::matchedLinks, equalTo(
                                 listOf("3", "4")
                             )
                         )
@@ -87,7 +87,7 @@ internal class CrawlerTest {
                         has(CrawledRecord::title, equalTo("3")),
                         has(CrawledRecord::url, equalTo("3")),
                         has(
-                            CrawledRecord::crawledLinks, equalTo(emptyList())
+                            CrawledRecord::matchedLinks, equalTo(emptyList())
                         )
                     )
                 ),
@@ -96,7 +96,7 @@ internal class CrawlerTest {
                         has(CrawledRecord::title, equalTo("4")),
                         has(CrawledRecord::url, equalTo("4")),
                         has(
-                            CrawledRecord::crawledLinks, equalTo(emptyList())
+                            CrawledRecord::matchedLinks, equalTo(emptyList())
                         )
                     )
                 ),
@@ -116,7 +116,7 @@ internal class CrawlerTest {
         // then
         assertThat(result.url, equalTo(singleUrl))
         assertThat(
-            result.links, allOf(
+            result.matchedLinks, allOf(
                 hasElement("https://www.example.com"),
                 hasElement("https://www.google.com"),
                 hasElement("https://www.openai.com"),
@@ -149,7 +149,7 @@ internal class CrawlerTest {
 
         // then
         assertThat(result.url, equalTo(singleUrl))
-        assertThat(result.links, hasElement("https://www.wikipedia.org").and(hasSize(equalTo(1))))
+        assertThat(result.matchedLinks, hasElement("https://www.wikipedia.org").and(hasSize(equalTo(1))))
     }
 
     @Test
@@ -162,7 +162,7 @@ internal class CrawlerTest {
 
         // then
         assertThat(result.url, equalTo(singleUrl))
-        assertThat(result.links, isEmpty)
+        assertThat(result.matchedLinks, isEmpty)
     }
 
     @Test
@@ -176,7 +176,7 @@ internal class CrawlerTest {
 
         // then
         assertThat(result.url, equalTo(singleUrl))
-        assertThat(result.links, isEmpty)
+        assertThat(result.matchedLinks, isEmpty)
     }
 
     private val html = """

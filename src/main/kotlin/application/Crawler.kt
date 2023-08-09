@@ -5,6 +5,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import model.CrawledRecord
+import model.WebsiteRecord
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method
 import org.http4k.core.Request
@@ -20,7 +21,7 @@ class Crawler(private val client: HttpHandler) {
      */
     suspend fun recursiveCrawl(request: Request, matcher: String) : List<CrawledRecord> = coroutineScope {
         val record = crawl(request, matcher)
-        val next = record.crawledLinks.map {
+        val next = record.matchedLinks.map {
             async(Dispatchers.IO) {
                 recursiveCrawl(Request(Method.GET, it), matcher)
             }
@@ -53,5 +54,21 @@ class Crawler(private val client: HttpHandler) {
     private companion object {
         val logger: Logger = LoggerFactory.getLogger(Crawler::class.java)
     }
+}
+
+class App {
+    fun modifyRecord() {}
+
+    fun addRecord() {}
+
+    fun removeRecord() {}
+
+    fun listRecords() {}
+
+    fun getExecution(record: WebsiteRecord) {
+
+    }
+
+
 }
 
