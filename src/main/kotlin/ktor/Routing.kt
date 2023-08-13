@@ -13,7 +13,8 @@ fun Application.configureRouting(app: App.Client) {
     routing {
         route("/records") {
             get {
-                call.respond(app.getAll())
+                val records = app.getAll()
+                call.respond(HttpStatusCode.OK, records)
             }
         }
         route("/record") {
@@ -21,23 +22,23 @@ fun Application.configureRouting(app: App.Client) {
                 val record = call.receive<WebsiteRecord>()
                 val success = app.modify(record)
                 if (success) {
-                    call.respondText { "Record modified successfully." }
+                    call.respond(HttpStatusCode.OK)
                 } else {
-                    call.respondText(status = HttpStatusCode.BadRequest) { "Whoops!" }
+                    call.respond(HttpStatusCode.BadRequest)
                 }
             }
             post {
                 val record = call.receive<WebsiteRecord>()
                 app.add(record)
-                call.respondText { "Record added successfully" }
+                call.respond(HttpStatusCode.OK)
             }
             delete {
                 val record = call.receive<WebsiteRecord>()
                 val success = app.delete(record)
                 if (success) {
-                    call.respondText { "Record deleted successfully." }
+                    call.respond(HttpStatusCode.OK)
                 } else {
-                    call.respondText(status = HttpStatusCode.BadRequest) { "Whoops!" }
+                    call.respond(HttpStatusCode.BadRequest)
                 }
             }
         }
