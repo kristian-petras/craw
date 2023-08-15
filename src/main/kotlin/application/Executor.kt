@@ -6,30 +6,31 @@ import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.flowOf
 import model.Event
 import model.Execution
-import model.WebsiteRecord
+import model.ExecutorSearch
+import utility.TimeProvider
 import java.time.Instant
-import java.util.concurrent.atomic.AtomicLong
+import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
-class Executor(private val timeProvider: TimeProvider) {
-    private val scheduler = Scheduler<WebsiteRecord>(timeProvider)
+class Executor(timeProvider: TimeProvider) {
+    private val scheduler = Scheduler(timeProvider)
     private val crawler = Crawler()
 
-    private val counter = AtomicLong()
-    fun schedule(record: WebsiteRecord, timestamp: Instant) = scheduler.schedule(Event(timestamp, record))
+    fun remove(recordId: Int) = scheduler.remove(recordId)
+    fun schedule(search: ExecutorSearch, timestamp: Instant) = scheduler.schedule(Event(timestamp, search))
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun subscribe(): Flow<Execution> = scheduler
+    fun subscribe(): Flow<Pair<Int, Execution>> = scheduler
         .subscribe()
         .flatMapMerge {
             val records = crawler.recursiveCrawl(it.url, it.boundaryRegExp)
             val totalTime = records
-                .sumOf { record -> record.crawlTime.toDouble(DurationUnit.MILLISECONDS) }
+                .sumOf { record -> Duration.parse(record.crawlTime).toDouble(DurationUnit.MILLISECONDS) }
                 .toDuration(DurationUnit.MILLISECONDS)
 
-            val execution = Execution(it.id, counter.incrementAndGet(), records, totalTime, timeProvider.now(), false)
-            flowOf(execution)
+            val execution = Execution(records, totalTime.toIsoString())
+            flowOf(it.id to execution)
         }
 }
 

@@ -1,5 +1,6 @@
 package application
 
+import application.repository.DataRepository
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.SendChannel
@@ -7,38 +8,44 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.produceIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.selects.select
-import model.WebsiteRecord
+import model.*
+import utility.TimeProvider
 import java.time.Instant
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration
 import kotlin.time.toJavaDuration
 
 typealias GetAwaitable = CompletableDeferred<List<WebsiteRecord>>
 
-typealias AddAwaitable = Pair<CompletableDeferred<Unit>, WebsiteRecord>
+typealias AddAwaitable = Pair<CompletableDeferred<Unit>, WebsiteRecordAdd>
 
-typealias ModifyAwaitable = Pair<CompletableDeferred<Boolean>, WebsiteRecord>
-typealias DeleteAwaitable = Pair<CompletableDeferred<Boolean>, WebsiteRecord>
+typealias ModifyAwaitable = Pair<CompletableDeferred<Boolean>, WebsiteRecordModify>
+typealias DeleteAwaitable = Pair<CompletableDeferred<Boolean>, WebsiteRecordDelete>
 
-class App(private val executor: Executor, private val repository: DataRepository, private val timeProvider: TimeProvider) {
+class App(
+    private val executor: Executor,
+    private val repository: DataRepository,
+    private val timeProvider: TimeProvider
+) {
     inner class Client internal constructor(
         private val get: SendChannel<GetAwaitable>,
         private val add: SendChannel<AddAwaitable>,
         private val modify: SendChannel<ModifyAwaitable>,
         private val delete: SendChannel<DeleteAwaitable>
     ) {
-        suspend fun add(record: WebsiteRecord) {
+        suspend fun add(record: WebsiteRecordAdd) {
             val payload = CompletableDeferred<Unit>() to record
             add.send(payload)
             payload.first.await()
         }
 
-        suspend fun modify(record: WebsiteRecord): Boolean {
+        suspend fun modify(record: WebsiteRecordModify): Boolean {
             val payload = CompletableDeferred<Boolean>() to record
             modify.send(payload)
             return payload.first.await()
         }
 
-        suspend fun delete(record: WebsiteRecord): Boolean {
+        suspend fun delete(record: WebsiteRecordDelete): Boolean {
             val payload = CompletableDeferred<Boolean>() to record
             delete.send(payload)
             return payload.first.await()
@@ -51,8 +58,9 @@ class App(private val executor: Executor, private val repository: DataRepository
         }
     }
 
-    fun getClient() : Client = Client(getChannel, addChannel, modifyChannel, deleteChannel)
+    fun getClient(): Client = Client(getChannel, addChannel, modifyChannel, deleteChannel)
 
+    private val counter = AtomicInteger()
     private val getChannel = Channel<GetAwaitable>(Channel.UNLIMITED)
     private val addChannel = Channel<AddAwaitable>(Channel.UNLIMITED)
     private val modifyChannel = Channel<ModifyAwaitable>(Channel.UNLIMITED)
@@ -62,34 +70,53 @@ class App(private val executor: Executor, private val repository: DataRepository
 
         while (isActive) {
             select {
-                executionChannel.onReceive {
-                    repository.add(it)
-                    val record = repository.getRecord(it.recordId)!!
-                    if (record.active) {
-                        executor.schedule(record, it.lastExecutionTimestamp + record.periodicity)
-                    }
+                executionChannel.onReceive { (recordId, execution) ->
+                    val timestamp = timeProvider.now()
+                    val record = repository.get(recordId)!!
+                    val updatedRecord = record.copy(
+                        executions = record.executions + execution,
+                        lastExecutionTimestamp = timestamp,
+                        lastExecutionStatus = false
+                    )
+                    repository.upsert(updatedRecord)
+                    schedule(updatedRecord)
                 }
                 getChannel.onReceive {
                     val records = repository.getAll()
                     it.complete(records)
                 }
-                addChannel.onReceive { (result, record) ->
-                    repository.add(record)
+                addChannel.onReceive { (result, new) ->
+                    val record = WebsiteRecord(
+                        id = counter.getAndIncrement(),
+                        url = new.url,
+                        boundaryRegExp = new.boundaryRegExp,
+                        periodicity = new.periodicity,
+                        label = new.label,
+                        active = new.active,
+                        tags = new.tags,
+                        executions = emptyList(),
+                        lastExecutionTimestamp = null,
+                        lastExecutionStatus = null
+                    )
+                    repository.upsert(record)
                     if (record.active) {
-                        executor.schedule(record, timeProvider.now())
+                        executor.schedule(record.toExecutorSearch(), timeProvider.now())
                     }
                     result.complete(Unit)
                 }
-                modifyChannel.onReceive { (result, record) ->
-                    val success = repository.modify(record)
-                    if (record.active) {
-                        executor.schedule(record, timeProvider.now())
-                    }
+                modifyChannel.onReceive { (result, modify) ->
+                    val oldRecord = repository.get(modify.id)!!
+                    executor.remove(oldRecord.id)
+
+                    val newRecord = modify.from(oldRecord)
+                    schedule(newRecord)
+
+                    val success = repository.upsert(newRecord)
                     result.complete(success)
                 }
-                deleteChannel.onReceive { (result, record) ->
-                    val success = repository.delete(record)
-                    // TODO: remove all executions as well?
+                deleteChannel.onReceive { (result, delete) ->
+                    executor.remove(delete.id)
+                    val success = repository.delete(delete.id)
                     result.complete(success)
                 }
             }
@@ -99,6 +126,18 @@ class App(private val executor: Executor, private val repository: DataRepository
         println("ending!!")
     }
 
+    private fun schedule(record: WebsiteRecord) {
+        if (record.active) {
+            val timestamp = if (record.lastExecutionTimestamp == null)
+                timeProvider.now()
+            else
+                record.lastExecutionTimestamp + Duration.parse(record.periodicity)
+
+            executor.schedule(record.toExecutorSearch(), timestamp)
+        }
+    }
 }
+
+fun WebsiteRecord.toExecutorSearch() = ExecutorSearch(id, url, boundaryRegExp)
 
 private operator fun Instant.plus(duration: Duration): Instant = this.plus(duration.toJavaDuration())

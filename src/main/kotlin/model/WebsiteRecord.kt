@@ -1,7 +1,9 @@
+@file:UseSerializers(InstantSerializer::class, DurationSerializer::class)
 package model
 
 import kotlinx.serialization.Serializable
-import kotlin.time.Duration
+import kotlinx.serialization.UseSerializers
+import java.time.Instant
 
 /**
  * Website record used to keep track of websites to crawl.
@@ -17,13 +19,15 @@ import kotlin.time.Duration
  */
 @Serializable
 data class WebsiteRecord(
-    val id: Long,
+    val id: Int,
     val url: String,
     val boundaryRegExp: String,
-    val periodicity: Duration,
+    val periodicity: String,
     val label: String,
     val active: Boolean,
-    val tags: List<String>
-) : Comparable<WebsiteRecord> {
-    override fun compareTo(other: WebsiteRecord): Int = id.compareTo(other.id)
-}
+    val tags: List<String>,
+    val executions: List<Execution>,
+    val lastExecutionTimestamp: Instant?,
+    val lastExecutionStatus: Boolean?
+)
+

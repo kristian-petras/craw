@@ -22,6 +22,8 @@ dependencies {
     implementation(platform("dev.forkhandles:forkhandles-bom:2.6.0.0"))
     implementation("dev.forkhandles:result4k")
 
+    implementation("org.mongodb:mongodb-driver-kotlin-coroutine:4.10.1")
+
     implementation("io.ktor:ktor-server-core-jvm:2.3.3")
     implementation("io.ktor:ktor-server-netty-jvm:2.3.3")
     implementation("io.ktor:ktor-server-status-pages-jvm:2.3.3")

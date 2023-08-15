@@ -7,35 +7,37 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.selects.onTimeout
 import kotlinx.coroutines.selects.select
 import model.Event
+import model.ExecutorSearch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import utility.TimeProvider
 import utility.between
 import java.time.Instant
 import java.util.*
 import kotlin.time.Duration
 
-class Scheduler<T : Comparable<T>>(private val timeProvider: TimeProvider) {
+class Scheduler(private val timeProvider: TimeProvider) {
     private companion object {
         val logger: Logger = LoggerFactory.getLogger(Scheduler::class.java)
     }
 
-    private val compareByTimestamp: Comparator<Event<T>> = compareBy { it.timestamp }
+    private val compareByTimestamp: Comparator<Event<ExecutorSearch>> = compareBy { it.timestamp }
     private val eventQueue = PriorityQueue(compareByTimestamp)
-    private val eventChannel = Channel<Event<T>>(capacity = Channel.UNLIMITED)
+    private val eventChannel = Channel<Event<ExecutorSearch>>(capacity = Channel.UNLIMITED)
 
-    fun schedule(event: Event<T>) {
+    fun schedule(event: Event<ExecutorSearch>) {
         eventChannel.trySendBlocking(event)
             .onSuccess { logger.info("Scheduled event $event") }
             .onFailure { throw IllegalStateException("Could not schedule event $event", it) }
             .onClosed { throw IllegalStateException("Event channel was closed", it) }
     }
 
-    fun remove(payload: T): Boolean =
-        eventQueue.removeIf { it.payload.compareTo(payload) == 0 }
+    fun remove(recordId: Int): Boolean =
+        eventQueue.removeIf { it.payload.id == recordId }
 
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun subscribe(): Flow<T> = flow {
+    fun subscribe(): Flow<ExecutorSearch> = flow {
         while (true) {
             select {
                 eventChannel.onReceive {

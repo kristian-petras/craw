@@ -5,10 +5,11 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 
 @Serializable
-data class CrawledRecord(
+data class WebsiteRecordAdd(
     val url: String,
-    val crawlTime: String,
-    val title: String,
-    val links: List<String>,
-    val matchedLinks: List<String>
+    val boundaryRegExp: String,
+    val periodicity: String,
+    val label: String,
+    val active: Boolean,
+    val tags: List<String>
 )

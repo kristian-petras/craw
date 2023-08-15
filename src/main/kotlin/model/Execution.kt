@@ -1,16 +1,14 @@
+@file:UseSerializers(DurationSerializer::class)
 package model
 
-import java.time.Instant
-import kotlin.time.Duration
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
 
 /**
  * Execution is used to store crawled
  */
+@Serializable
 data class Execution(
-    val recordId: Long,
-    val executionId: Long,
     val crawledRecords: List<CrawledRecord>,
-    val totalTime: Duration,
-    val lastExecutionTimestamp: Instant,
-    val lastExecutionStatus: Boolean
+    val totalTime: String
 )

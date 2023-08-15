@@ -46,7 +46,7 @@ class Crawler {
                 .filter { regex.matches(it) }
         }
 
-        return CrawledRecord(requestUrl, crawlTime, title, links, matchedLinks)
+        return CrawledRecord(requestUrl, crawlTime.toIsoString(), title, links, matchedLinks)
             .also { logger.info("Crawler finished crawling of $requestUrl with $it") }
     }
 

@@ -6,7 +6,9 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import model.WebsiteRecord
+import model.WebsiteRecordAdd
+import model.WebsiteRecordDelete
+import model.WebsiteRecordModify
 
 
 fun Application.configureRouting(app: App.Client) {
@@ -19,7 +21,7 @@ fun Application.configureRouting(app: App.Client) {
         }
         route("/record") {
             put {
-                val record = call.receive<WebsiteRecord>()
+                val record = call.receive<WebsiteRecordModify>()
                 val success = app.modify(record)
                 if (success) {
                     call.respond(HttpStatusCode.OK)
@@ -28,12 +30,12 @@ fun Application.configureRouting(app: App.Client) {
                 }
             }
             post {
-                val record = call.receive<WebsiteRecord>()
+                val record = call.receive<WebsiteRecordAdd>()
                 app.add(record)
                 call.respond(HttpStatusCode.OK)
             }
             delete {
-                val record = call.receive<WebsiteRecord>()
+                val record = call.receive<WebsiteRecordDelete>()
                 val success = app.delete(record)
                 if (success) {
                     call.respond(HttpStatusCode.OK)

@@ -1,4 +1,4 @@
-import application.TimeProvider
+import utility.TimeProvider
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
