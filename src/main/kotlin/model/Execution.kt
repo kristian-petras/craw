@@ -3,6 +3,7 @@ package model
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
+import utility.DurationSerializer
 
 /**
  * Execution is used to store crawled

@@ -3,6 +3,8 @@ package model
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
+import utility.DurationSerializer
+import utility.InstantSerializer
 import java.time.Instant
 
 /**

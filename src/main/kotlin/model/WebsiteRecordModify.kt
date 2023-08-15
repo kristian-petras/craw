@@ -2,6 +2,7 @@
 package model
 
 import kotlinx.serialization.UseSerializers
+import utility.DurationSerializer
 
 data class WebsiteRecordModify(
     val id: Int,
