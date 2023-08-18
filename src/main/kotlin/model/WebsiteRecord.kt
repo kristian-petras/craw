@@ -32,4 +32,3 @@ data class WebsiteRecord(
     val lastExecutionTimestamp: Instant?,
     val lastExecutionStatus: Boolean?
 )
-

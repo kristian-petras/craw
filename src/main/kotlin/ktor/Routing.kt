@@ -13,36 +13,26 @@ import model.WebsiteRecordModify
 
 fun Application.configureRouting(app: App.Client) {
     routing {
-        route("/records") {
-            get {
-                val records = app.getAll()
-                call.respond(HttpStatusCode.OK, records)
-            }
+        get("/records"){
+            val records = app.getAll()
+            call.respond(HttpStatusCode.OK, records)
         }
-        route("/record") {
-            put {
-                val record = call.receive<WebsiteRecordModify>()
-                val success = app.modify(record)
-                if (success) {
-                    call.respond(HttpStatusCode.OK)
-                } else {
-                    call.respond(HttpStatusCode.BadRequest)
-                }
-            }
-            post {
-                val record = call.receive<WebsiteRecordAdd>()
-                app.add(record)
-                call.respond(HttpStatusCode.OK)
-            }
-            delete {
-                val record = call.receive<WebsiteRecordDelete>()
-                val success = app.delete(record)
-                if (success) {
-                    call.respond(HttpStatusCode.OK)
-                } else {
-                    call.respond(HttpStatusCode.BadRequest)
-                }
-            }
+        post("/record") {
+            val payload = call.receive<WebsiteRecordAdd>()
+            val id = app.add(payload)
+            call.respond(HttpStatusCode.OK, id)
+        }
+        put("/record") {
+            val payload = call.receive<WebsiteRecordModify>()
+            val success = app.modify(payload)
+            val status = if (success) HttpStatusCode.OK else HttpStatusCode.BadRequest
+            call.respond(status)
+        }
+        delete("/record") {
+            val payload = call.receive<WebsiteRecordDelete>()
+            val success = app.delete(payload)
+            val status = if (success) HttpStatusCode.OK else HttpStatusCode.BadRequest
+            call.respond(status)
         }
     }
 }

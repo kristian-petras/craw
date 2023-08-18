@@ -17,7 +17,7 @@ import kotlin.time.toJavaDuration
 
 typealias GetAwaitable = CompletableDeferred<List<WebsiteRecord>>
 
-typealias AddAwaitable = Pair<CompletableDeferred<Unit>, WebsiteRecordAdd>
+typealias AddAwaitable = Pair<CompletableDeferred<Int>, WebsiteRecordAdd>
 
 typealias ModifyAwaitable = Pair<CompletableDeferred<Boolean>, WebsiteRecordModify>
 typealias DeleteAwaitable = Pair<CompletableDeferred<Boolean>, WebsiteRecordDelete>
@@ -33,10 +33,10 @@ class App(
         private val modify: SendChannel<ModifyAwaitable>,
         private val delete: SendChannel<DeleteAwaitable>
     ) {
-        suspend fun add(record: WebsiteRecordAdd) {
-            val payload = CompletableDeferred<Unit>() to record
+        suspend fun add(record: WebsiteRecordAdd): Int {
+            val payload = CompletableDeferred<Int>() to record
             add.send(payload)
-            payload.first.await()
+            return payload.first.await()
         }
 
         suspend fun modify(record: WebsiteRecordModify): Boolean {
@@ -69,7 +69,7 @@ class App(
         val executionChannel = executor.subscribe().produceIn(this)
 
         while (isActive) {
-            select {
+            select<Unit> {
                 executionChannel.onReceive { (recordId, execution) ->
                     val timestamp = timeProvider.now()
                     val record = repository.get(recordId)!!
@@ -86,8 +86,9 @@ class App(
                     it.complete(records)
                 }
                 addChannel.onReceive { (result, new) ->
+                    val id = counter.getAndIncrement()
                     val record = WebsiteRecord(
-                        id = counter.getAndIncrement(),
+                        id = id,
                         url = new.url,
                         boundaryRegExp = new.boundaryRegExp,
                         periodicity = new.periodicity,
@@ -102,10 +103,15 @@ class App(
                     if (record.active) {
                         executor.schedule(record.toExecutorSearch(), timeProvider.now())
                     }
-                    result.complete(Unit)
+                    result.complete(id)
                 }
                 modifyChannel.onReceive { (result, modify) ->
-                    val oldRecord = repository.get(modify.id)!!
+                    val oldRecord = repository.get(modify.id)
+
+                    if (oldRecord == null) {
+                        result.complete(false)
+                        return@onReceive
+                    }
                     executor.remove(oldRecord.id)
 
                     val newRecord = modify.from(oldRecord)

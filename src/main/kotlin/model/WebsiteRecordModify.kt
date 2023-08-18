@@ -1,9 +1,11 @@
 @file:UseSerializers(DurationSerializer::class)
 package model
 
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import utility.DurationSerializer
 
+@Serializable
 data class WebsiteRecordModify(
     val id: Int,
     val url: String?,

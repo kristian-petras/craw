@@ -1,173 +1,112 @@
-
 import application.Crawler
-import com.natpryce.hamkrest.*
-import com.natpryce.hamkrest.assertion.assertThat
+import io.ktor.client.*
+import io.ktor.client.engine.mock.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
 import kotlinx.coroutines.test.runTest
-import model.CrawledRecord
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.tuple
 import org.junit.jupiter.api.Test
 
 internal class CrawlerTest {
 
-    private lateinit var crawler: Crawler
-
-    @BeforeEach
-    fun setup() {
-//        val app = routes(
-//            recursiveUrl bind Method.GET to {
-//                Response(OK).body(
-//                    """
-//                <title>1</title>
-//                <a href="2">Next site</a>
-//            """.trimIndent()
-//                )
-//            },
-//            "2" bind Method.GET to {
-//                Response(OK).body(
-//                    """
-//                <title>2</title>
-//                <a href="3">Next site</a>
-//                <a href="4">Next site</a>
-//            """.trimIndent()
-//                )
-//            },
-//            "3" bind Method.GET to { Response(OK).body("<title>3</title>") },
-//            "4" bind Method.GET to { Response(OK).body("<title>4</title>") },
-//            singleUrl bind Method.GET to { Response(OK).body(html) }
-//        )
-        crawler = Crawler()
-    }
-
-    private val recursiveUrl = "1"
-    private val singleUrl = "single-page"
-
-    @Disabled("Fix assertion.")
     @Test
     fun `crawler should crawl pages recursively`() = runTest {
         // given
+        val crawler = createCrawler()
 
         // when
-        val records = crawler.recursiveCrawl(recursiveUrl, ".*")
+        val records = crawler.recursiveCrawl("/1", ".*")
 
         // then
-        assertThat(
-            records, allOf(
-                hasElement(
-                    allOf(
-                        has(CrawledRecord::title, equalTo("1")),
-                        has(CrawledRecord::url, equalTo("1")),
-                        has(
-                            CrawledRecord::matchedLinks, equalTo(
-                                listOf("2")
-                            )
-                        )
-                    )
-                ),
-                hasElement(
-                    allOf(
-                        has(CrawledRecord::title, equalTo("2")),
-                        has(CrawledRecord::url, equalTo("2")),
-                        has(
-                            CrawledRecord::matchedLinks, equalTo(
-                                listOf("3", "4")
-                            )
-                        )
-                    )
-                ),
-                hasElement(
-                    allOf(
-                        has(CrawledRecord::title, equalTo("3")),
-                        has(CrawledRecord::url, equalTo("3")),
-                        has(
-                            CrawledRecord::matchedLinks, equalTo(emptyList())
-                        )
-                    )
-                ),
-                hasElement(
-                    allOf(
-                        has(CrawledRecord::title, equalTo("4")),
-                        has(CrawledRecord::url, equalTo("4")),
-                        has(
-                            CrawledRecord::matchedLinks, equalTo(emptyList())
-                        )
-                    )
-                ),
+        assertThat(records)
+            .extracting("url", "links")
+            .containsExactly(
+                tuple("/1", listOf("/2")),
+                tuple("/2", listOf("/3", "/4")),
+                tuple("/3", emptyList<String>()),
+                tuple("/4", emptyList<String>())
+            )
+    }
 
-                )
+
+    @Test
+    fun `crawler is able to gather hyperlinks matched by regex`() = runTest {
+        // given
+        val crawler = createCrawler()
+
+        // when
+        val result = crawler.crawl("/5", ".*\\.org$")
+
+        // then
+        assertThat(result.matchedLinks).containsExactly("https://www.wikipedia.org")
+    }
+
+    @Test
+    fun `crawler does not crash on site without matches`() = runTest {
+        // given
+        val crawler = createCrawler()
+
+        // when
+        val result = crawler.crawl("/5", ".*\\.cz$")
+
+        // then
+        assertThat(result.matchedLinks).isEmpty()
+    }
+
+    @Test
+    fun `crawler is able to gather`() = runTest {
+        // given
+        val crawler = createCrawler()
+
+        // when
+        crawler.crawl("/5", ".*")
+        val result = crawler.crawl("/5", ".*\\.cz$")
+
+        // then
+        assertThat(result.url).isEqualTo("/5")
+        assertThat(result.title).isEqualTo("Random Links")
+        assertThat(result.matchedLinks).isEmpty()
+        assertThat(result.links).containsExactly(
+            "https://www.example.com",
+            "https://www.google.com",
+            "https://www.openai.com",
+            "https://www.github.com",
+            "https://www.wikipedia.org"
         )
     }
 
-    @Test
-    fun `crawler is able to gather hyperlinks`() {
-        // given
-
-        // when
-        val result = crawler.crawl(singleUrl, ".*")
-
-        // then
-        assertThat(result.url, equalTo(singleUrl))
-        assertThat(
-            result.matchedLinks, allOf(
-                hasElement("https://www.example.com"),
-                hasElement("https://www.google.com"),
-                hasElement("https://www.openai.com"),
-                hasElement("https://www.github.com"),
-                hasElement("https://www.wikipedia.org")
-            ).and(hasSize(equalTo(5)))
-        )
+    private suspend fun createCrawler(): Crawler {
+        val client = createFakeClient()
+        return Crawler {
+            client.get(it).bodyAsText()
+        }
     }
 
-    @Test
-    fun `crawler is able to gather title`() {
-        // given
-
-        // when
-        val result = crawler.crawl(singleUrl, ".*")
-
-        // then
-        assertThat(result.url, equalTo(singleUrl))
-        assertThat(result.title, equalTo("Random Links"))
+    private fun createFakeClient() = HttpClient(MockEngine) {
+        engine {
+            addHandler {
+                val app = mapOf(site1, site2, site3, site4, site5)
+                val html = app[it.url.fullPath]!!
+                respond(html)
+            }
+        }
     }
 
-    @Test
-    fun `crawler is able to gather hyperlinks matched by regex`() {
-        // given
-
-        // when
-        val result = crawler.crawl(singleUrl, ".*\\.org$")
-
-        // then
-        assertThat(result.url, equalTo(singleUrl))
-        assertThat(result.matchedLinks, hasElement("https://www.wikipedia.org").and(hasSize(equalTo(1))))
-    }
-
-    @Test
-    fun `crawler does not crash on site without matches`() {
-        // given
-
-        // when
-        val result = crawler.crawl(singleUrl, ".*\\.cz$")
-
-        // then
-        assertThat(result.url, equalTo(singleUrl))
-        assertThat(result.matchedLinks, isEmpty)
-    }
-
-    @Test
-    fun `crawler is able to crawl multiple times`() {
-        // given
-
-        // when
-        crawler.crawl(singleUrl, ".*")
-        val result = crawler.crawl(singleUrl, ".*\\.cz$")
-
-        // then
-        assertThat(result.url, equalTo(singleUrl))
-        assertThat(result.matchedLinks, isEmpty)
-    }
-
-    private val html = """
+    companion object {
+        val site1 = "/1" to """
+            <title>1</title>
+            <a href="/2">Next site</a>
+        """.trimIndent()
+        val site2 = "/2" to """
+            <title>2</title>
+            <a href="/3">Next site</a>
+            <a href="/4">Next site</a>
+        """.trimIndent()
+        val site3 = "/3" to "<title>3</title>"
+        val site4 = "/4" to "<title>4</title>"
+        val site5 = "/5" to """
         <!DOCTYPE html>
         <html>
         <head>
@@ -187,4 +126,5 @@ internal class CrawlerTest {
         </body>
         </html>
         """.trimIndent()
+    }
 }

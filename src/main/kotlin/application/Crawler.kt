@@ -5,16 +5,12 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import model.CrawledRecord
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import org.jsoup.Jsoup
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import kotlin.time.measureTime
 
-class Crawler {
-    private val client = OkHttpClient()
-    private val builder = Request.Builder()
+class Crawler(private val call: suspend (String) -> String) {
     /**
      * Parallel and recursive crawling
      */
@@ -29,16 +25,15 @@ class Crawler {
         listOf(record) + next.awaitAll().flatten()
     }
 
-    fun crawl(requestUrl: String, matcher: String) : CrawledRecord {
-        val request = builder.url(requestUrl).get().build()
+    suspend fun crawl(requestUrl: String, matcher: String) : CrawledRecord {
         logger.info("Started to crawl request $requestUrl")
         val regex = Regex(matcher)
         val links: List<String>
         val matchedLinks: List<String>
         val title: String
         val crawlTime = measureTime {
-            val response = client.newCall(request).execute()
-            val document = Jsoup.parse(response.body.string())
+            val response = call(requestUrl)
+            val document = Jsoup.parse(response)
             title = document.title()
             links = document.select("a[href]")
                 .map { link -> link.attr("href") }

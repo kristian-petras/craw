@@ -7,6 +7,8 @@ import kotlinx.coroutines.flow.flowOf
 import model.Event
 import model.Execution
 import model.ExecutorSearch
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import utility.TimeProvider
 import java.time.Instant
 import kotlin.time.Duration
@@ -15,7 +17,14 @@ import kotlin.time.toDuration
 
 class Executor(timeProvider: TimeProvider) {
     private val scheduler = Scheduler(timeProvider)
-    private val crawler = Crawler()
+
+    private val client = OkHttpClient()
+    private val builder = Request.Builder()
+
+    private val crawler = Crawler {
+        val request = builder.url(it).get().build()
+        client.newCall(request).execute().body.string()
+    }
 
     fun remove(recordId: Int) = scheduler.remove(recordId)
     fun schedule(search: ExecutorSearch, timestamp: Instant) = scheduler.schedule(Event(timestamp, search))
