@@ -19,6 +19,8 @@ dependencies {
     implementation("io.ktor:ktor-server-html-builder-jvm:2.3.3")
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.7.2")
 
+    implementation("io.ktor:ktor-server-swagger:2.3.3")
+
     implementation("ch.qos.logback:logback-classic:1.4.8")
 
     implementation("org.mongodb:mongodb-driver-kotlin-coroutine:4.10.1")

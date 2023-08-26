@@ -1,0 +1,203 @@
+openapi: "3.0.3"
+info:
+  title: "craw API"
+  description: "craw API"
+  version: "1.0.0"
+servers:
+- url: "https://craw"
+paths:
+  /record:
+    delete:
+      description: ""
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: "#/components/schemas/WebsiteRecordDelete"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+        "400":
+          description: "Bad Request"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+    post:
+      description: ""
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: "#/components/schemas/WebsiteRecordAdd"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "integer"
+                format: "int32"
+    put:
+      description: ""
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: "#/components/schemas/WebsiteRecordModify"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+        "400":
+          description: "Bad Request"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+  /records:
+    get:
+      description: ""
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/WebsiteRecord"
+  /:
+    get:
+      description: ""
+      responses:
+        "200":
+          description: "OK"
+          content:
+            text/plain:
+              schema:
+                $ref: "#/components/schemas/Function1_? super HTML"
+              examples:
+                text/html:
+                  description: "HTML document"
+                  value: ""
+  /sse:
+    get:
+      description: ""
+components:
+  schemas:
+    WebsiteRecordDelete:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "int32"
+    WebsiteRecordAdd:
+      type: "object"
+      properties:
+        url:
+          type: "string"
+        boundaryRegExp:
+          type: "string"
+        periodicity:
+          type: "string"
+        label:
+          type: "string"
+        active:
+          type: "boolean"
+        tags:
+          type: "array"
+          items:
+            type: "string"
+    WebsiteRecordModify:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "int32"
+        url:
+          type: "string"
+        boundaryRegExp:
+          type: "string"
+        periodicity:
+          type: "string"
+        label:
+          type: "string"
+        active:
+          type: "boolean"
+        tags:
+          type: "array"
+          items:
+            type: "string"
+    CrawledRecord:
+      type: "object"
+      properties:
+        url:
+          type: "string"
+        crawlTime:
+          type: "string"
+        title:
+          type: "string"
+        links:
+          type: "array"
+          items:
+            type: "string"
+        matchedLinks:
+          type: "array"
+          items:
+            type: "string"
+    Execution:
+      type: "object"
+      properties:
+        crawledRecords:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/CrawledRecord"
+        totalTime:
+          type: "string"
+    Instant:
+      type: "object"
+      properties: {}
+    WebsiteRecord:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          format: "int32"
+        url:
+          type: "string"
+        boundaryRegExp:
+          type: "string"
+        periodicity:
+          type: "string"
+        label:
+          type: "string"
+        active:
+          type: "boolean"
+        tags:
+          type: "array"
+          items:
+            type: "string"
+        executions:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Execution"
+        lastExecutionTimestamp:
+          $ref: "#/components/schemas/Instant"
+        lastExecutionStatus:
+          type: "boolean"
+    Function1:
+      type: "object"
+      properties: {}
+    Function1_? super HTML:
+      type: "object"
