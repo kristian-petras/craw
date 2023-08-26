@@ -4,7 +4,9 @@ import application.App
 import application.Executor
 import application.repository.LocalDataRepository
 import application.repository.MongoDataRepository
+import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.plugins.cors.routing.*
 import kotlinx.coroutines.launch
 import sse.SseApp
 import sse.sse
@@ -24,6 +26,10 @@ fun Application.module() {
     val app = App(executor, repository, timeProvider)
     configureSerialization()
     configureRouting(app.getClient())
+    install(CORS) {
+        anyHost()
+        allowHeader(HttpHeaders.ContentType)
+    }
     sse(SseApp())
     launch { app.run() }
 }
