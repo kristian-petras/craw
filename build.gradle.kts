@@ -16,6 +16,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
     implementation("org.jsoup:jsoup:1.16.1")
 
+    implementation("io.ktor:ktor-server-html-builder-jvm:2.3.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.7.2")
+
     implementation("ch.qos.logback:logback-classic:1.4.8")
 
     implementation("org.mongodb:mongodb-driver-kotlin-coroutine:4.10.1")
