@@ -1,8 +1,7 @@
+
 import application.Crawler
 import io.ktor.client.*
 import io.ktor.client.engine.mock.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -77,11 +76,9 @@ internal class CrawlerTest {
         )
     }
 
-    private suspend fun createCrawler(): Crawler {
+    private fun createCrawler(): Crawler {
         val client = createFakeClient()
-        return Crawler {
-            client.get(it).bodyAsText()
-        }
+        return Crawler(client)
     }
 
     private fun createFakeClient() = HttpClient(MockEngine) {

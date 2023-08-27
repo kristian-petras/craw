@@ -1,5 +1,8 @@
 package application
 
+import io.ktor.client.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -10,7 +13,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import kotlin.time.measureTime
 
-class Crawler(private val call: suspend (String) -> String) {
+class Crawler(private val client: HttpClient = HttpClient()) {
     /**
      * Parallel and recursive crawling
      */
@@ -32,7 +35,7 @@ class Crawler(private val call: suspend (String) -> String) {
         val matchedLinks: List<String>
         val title: String
         val crawlTime = measureTime {
-            val response = call(requestUrl)
+            val response = client.get(requestUrl).bodyAsText()
             val document = Jsoup.parse(response)
             title = document.title()
             links = document.select("a[href]")
