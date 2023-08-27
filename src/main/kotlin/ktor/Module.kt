@@ -4,13 +4,15 @@ import application.App
 import application.Executor
 import application.repository.LocalDataRepository
 import application.repository.MongoDataRepository
-import graphql.graphQL
-import io.ktor.http.*
+import domain.graphql.Identifier
+import domain.graphql.Node
+import domain.graphql.QueryResolver
+import domain.graphql.WebPage
+import infrastructure.configureRouting
 import io.ktor.server.application.*
-import io.ktor.server.plugins.cors.routing.*
 import kotlinx.coroutines.launch
+import model.WebsiteRecord
 import sse.SseApp
-import sse.sse
 import utility.TimeProvider
 import java.time.Instant
 
@@ -25,13 +27,32 @@ fun Application.module() {
 
     val executor = Executor(timeProvider)
     val app = App(executor, repository, timeProvider)
-    configureSerialization()
-    configureRouting(app.getClient())
-    install(CORS) {
-        anyHost()
-        allowHeader(HttpHeaders.ContentType)
-    }
-    sse(SseApp())
-    graphQL()
+
+    val client = app.getClient()
+    configureRouting(
+        SseApp(),
+        client,
+        DelegatingQueryResolver(client)
+    )
     launch { app.run() }
+}
+
+class DelegatingQueryResolver(private val app: App.Client) : QueryResolver {
+    override suspend fun websites(): List<WebPage> = app.getAll().map { it.toWebPage() }
+
+    override suspend fun nodes(webPages: List<Identifier>): List<Node> =
+        app.getAll()
+            .filter { it.toIdentifier() in webPages }
+            .map { Node(null, it.url, null, emptyList(), it.toWebPage()) }
+
+    private fun WebsiteRecord.toWebPage(): WebPage = WebPage(
+        identifier = id.toString(),
+        label = label,
+        url = url,
+        regexp = boundaryRegExp,
+        tags = tags,
+        active = active
+    )
+
+    private fun WebsiteRecord.toIdentifier(): Identifier = id.toString()
 }
