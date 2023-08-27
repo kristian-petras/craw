@@ -26,11 +26,12 @@ fun Application.module() {
     }
 
     val executor = Executor(timeProvider)
-    val app = App(executor, repository, timeProvider)
+    val sseApp = SseApp()
+    val app = App(executor, repository, timeProvider, sseApp)
 
     val client = app.getClient()
     configureRouting(
-        SseApp(),
+        sseApp,
         client,
         DelegatingQueryResolver(client)
     )

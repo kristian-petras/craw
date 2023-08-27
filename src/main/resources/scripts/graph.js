@@ -30,11 +30,18 @@ const network = new vis.Network(container, data, options);
 if (!!window.EventSource) {
     const source = new EventSource('/graph-events');
     console.log("!1")
-    source.onmessage = function (e) {
+
+    source.addEventListener('node', function (e) {
         const data = JSON.parse(e.data);
-        nodes.add(data)
-        //document.body.innerHTML += e.data + '<br>';
-    };
+        nodes.update(data)
+        console.log(data)
+    }, false);
+
+    source.addEventListener('edge', function (e) {
+        const data = JSON.parse(e.data);
+        edges.update(data)
+        console.log(data)
+    }, false);
 
     source.addEventListener('open', function (e) {
         console.log("!3")

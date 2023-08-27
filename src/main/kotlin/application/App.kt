@@ -1,6 +1,7 @@
 package application
 
 import application.repository.DataRepository
+import domain.vis.toGraph
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.SendChannel
@@ -9,6 +10,7 @@ import kotlinx.coroutines.flow.produceIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.selects.select
 import model.*
+import sse.SseApp
 import utility.TimeProvider
 import java.time.Instant
 import java.util.concurrent.atomic.AtomicInteger
@@ -25,7 +27,8 @@ typealias DeleteAwaitable = Pair<CompletableDeferred<Boolean>, WebsiteRecordDele
 class App(
     private val executor: Executor,
     private val repository: DataRepository,
-    private val timeProvider: TimeProvider
+    private val timeProvider: TimeProvider,
+    private val sseApp: SseApp
 ) {
     inner class Client internal constructor(
         private val get: SendChannel<GetAwaitable>,
@@ -79,6 +82,7 @@ class App(
                         lastExecutionStatus = false
                     )
                     repository.upsert(updatedRecord)
+                    sseApp.sendUpdate(updatedRecord.toGraph())
                     schedule(updatedRecord)
                 }
                 getChannel.onReceive {

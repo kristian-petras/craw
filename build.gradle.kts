@@ -36,6 +36,7 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.3")
     implementation("io.ktor:ktor-client-core:2.3.3")
     implementation("io.ktor:ktor-client-content-negotiation:2.3.3")
+    implementation("io.ktor:ktor-client-okhttp:2.3.3")
 
     testImplementation(kotlin("test"))
     testImplementation("io.ktor:ktor-server-test-host:2.3.3")
