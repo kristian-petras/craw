@@ -23,6 +23,9 @@ dependencies {
     implementation("io.ktor:ktor-server-cors:2.3.3")
     implementation("ch.qos.logback:logback-classic:1.4.8")
 
+    implementation("com.apurebase:kgraphql:0.19.0")
+    implementation("com.apurebase:kgraphql-ktor:0.19.0")
+
     implementation("org.mongodb:mongodb-driver-kotlin-coroutine:4.10.1")
 
     implementation("io.ktor:ktor-server-core-jvm:2.3.3")
@@ -43,6 +46,18 @@ dependencies {
 
     testImplementation("io.ktor:ktor-client-mock:2.3.3")
     testImplementation("io.ktor:ktor-server-html-builder:2.3.3")
+}
+
+tasks.compileKotlin {
+    kotlinOptions.jvmTarget = JavaVersion.VERSION_11.toString()
+}
+
+kotlin {
+    jvmToolchain(17)
+}
+
+tasks.compileJava {
+    options.release.set(17)
 }
 
 tasks.test {

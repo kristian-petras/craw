@@ -4,6 +4,7 @@ import application.App
 import application.Executor
 import application.repository.LocalDataRepository
 import application.repository.MongoDataRepository
+import graphql.graphQL
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.cors.routing.*
@@ -31,5 +32,6 @@ fun Application.module() {
         allowHeader(HttpHeaders.ContentType)
     }
     sse(SseApp())
+    graphQL()
     launch { app.run() }
 }
