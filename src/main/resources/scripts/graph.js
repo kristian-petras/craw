@@ -1,57 +1,36 @@
-// create an array with nodes
-const nodes = new vis.DataSet([
-    { id: 1, label: "Node 1" },
-    { id: 2, label: "Node 2" },
-    { id: 3, label: "Node 3" },
-    { id: 4, label: "Node 4" },
-    { id: 5, label: "Node 5" },
-]);
-
-// create an array with edges
-const edges = new vis.DataSet([
-    { from: 1, to: 3 },
-    { from: 1, to: 2 },
-    { from: 2, to: 4 },
-    { from: 2, to: 5 },
-    { from: 3, to: 3 },
-]);
-
-// create a network
 const container = document.getElementById("root");
-const data = {
-    nodes: nodes,
-    edges: edges,
-};
-const options = {};
 
-const network = new vis.Network(container, data, options);
+const nodes = new vis.DataSet([])
+const edges = new vis.DataSet([])
 
+const network = new vis.Network(container, {nodes: nodes, edges: edges}, {})
 
 if (!!window.EventSource) {
     const source = new EventSource('/graph-events');
-    console.log("!1")
 
-    source.addEventListener('node', function (e) {
+    source.addEventListener('node', (e) => {
         const data = JSON.parse(e.data);
         nodes.update(data)
         console.log(data)
-    }, false);
+    })
 
-    source.addEventListener('edge', function (e) {
+    source.addEventListener('edge', (e) => {
         const data = JSON.parse(e.data);
         edges.update(data)
         console.log(data)
-    }, false);
+    })
 
-    source.addEventListener('open', function (e) {
-        console.log("!3")
-        // Connection was opened.
-    }, false);
+    source.addEventListener('open', (e) => {
+        console.log("Connection was opened.")
+    })
 
-    source.addEventListener('error', function (e) {
-        console.log("!4")
+    source.addEventListener('error', (e) => {
         if (e.readyState === EventSource.CLOSED) {
-            // Connection was closed.
+            console.log("Connection was closed.")
+        } else {
+            console.log(`Connection error: ${e}`)
         }
-    }, false);
+    })
+} else {
+    console.log("Event source not supported.")
 }
