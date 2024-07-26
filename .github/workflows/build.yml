@@ -1,16 +1,17 @@
-name: Build
+name: Build Backend
 
 on:
   push:
 
 jobs:
   build:
+    defaults:
+      run:
+        working-directory: backend
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
-      - name: Navigate to backend directory
-        run: cd backend
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
