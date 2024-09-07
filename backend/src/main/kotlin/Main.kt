@@ -34,12 +34,17 @@ class City(id: EntityID<Int>) : IntEntity(id) {
 }
 
 fun main() {
-    Database.connect("jdbc:h2:mem:test", driver = "org.h2.Driver", user = "root", password = "")
+    val database = Database.connect(
+        url = "jdbc:h2:file:./backend/data/test;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE",
+        user = "root",
+        driver = "org.h2.Driver",
+        password = ""
+    )
 
-    transaction {
+    transaction(database) {
         addLogger(StdOutSqlLogger)
 
-        SchemaUtils.create(Cities, Users)
+        SchemaUtils.createMissingTablesAndColumns(Cities, Users)
 
         val stPete =
             City.new {
