@@ -1,14 +1,16 @@
+class CrawlerTest
+
 //
-//import application.Crawler
-//import io.ktor.client.*
-//import io.ktor.client.engine.mock.*
-//import io.ktor.http.*
-//import kotlinx.coroutines.test.runTest
-//import org.assertj.core.api.Assertions.assertThat
-//import org.assertj.core.api.Assertions.tuple
-//import org.junit.jupiter.api.Test
+// import application.Crawler
+// import io.ktor.client.*
+// import io.ktor.client.engine.mock.*
+// import io.ktor.http.*
+// import kotlinx.coroutines.test.runTest
+// import org.assertj.core.api.Assertions.assertThat
+// import org.assertj.core.api.Assertions.tuple
+// import org.junit.jupiter.api.Test
 //
-//internal class CrawlerTest {
+// internal class CrawlerTest {
 //
 //    @Test
 //    fun `crawler should crawl pages recursively`() = runTest {
@@ -124,4 +126,4 @@
 //        </html>
 //        """.trimIndent()
 //    }
-//}
+// }

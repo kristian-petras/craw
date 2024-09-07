@@ -1,19 +1,19 @@
+class SchedulerTest
 //
+// import TestHelper.mockTimeProvider
+// import TestHelper.timestamp
+// import application.Scheduler
+// import kotlinx.coroutines.delay
+// import kotlinx.coroutines.flow.catch
+// import kotlinx.coroutines.flow.toList
+// import kotlinx.coroutines.launch
+// import kotlinx.coroutines.test.runTest
+// import model.Event
+// import model.ExecutorSearch
+// import org.assertj.core.api.Assertions.assertThat
+// import org.junit.jupiter.api.Test
 //
-//import TestHelper.mockTimeProvider
-//import TestHelper.timestamp
-//import application.Scheduler
-//import kotlinx.coroutines.delay
-//import kotlinx.coroutines.flow.catch
-//import kotlinx.coroutines.flow.toList
-//import kotlinx.coroutines.launch
-//import kotlinx.coroutines.test.runTest
-//import model.Event
-//import model.ExecutorSearch
-//import org.assertj.core.api.Assertions.assertThat
-//import org.junit.jupiter.api.Test
-//
-//class SchedulerTest {
+// class SchedulerTest {
 //    @Test
 //    fun `scheduler should wait until next execution`() = runTest {
 //        // given
@@ -112,4 +112,4 @@
 //
 //        assertThat(events).containsExactly(first.payload, second.payload)
 //    }
-//}
+// }

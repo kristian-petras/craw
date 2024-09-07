@@ -21,17 +21,19 @@ object TestHelper {
             tags = emptyList(),
             executions = emptyList(),
             lastExecutionTimestamp = null,
-            lastExecutionStatus = null
+            lastExecutionStatus = null,
         )
 
     val timestamp: Instant = Instant.parse("2023-07-01T10:00:00Z")
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun TestScope.mockTimeProvider(now: Instant = timestamp): TimeProvider = mockk<TimeProvider> {
-        every { now() } answers { now.plusMillis(currentTime) }
-    }
+    fun TestScope.mockTimeProvider(now: Instant = timestamp): TimeProvider =
+        mockk<TimeProvider> {
+            every { now() } answers { now.plusMillis(currentTime) }
+        }
 
-    fun mockStaticTimeProvider(now: Instant = timestamp): TimeProvider = mockk<TimeProvider> {
-        every { now() } answers { now }
-    }
+    fun mockStaticTimeProvider(now: Instant = timestamp): TimeProvider =
+        mockk<TimeProvider> {
+            every { now() } answers { now }
+        }
 }

@@ -1,4 +1,5 @@
 @file:UseSerializers(DurationSerializer::class)
+
 package model
 
 import kotlinx.serialization.Serializable
@@ -11,5 +12,5 @@ data class CrawledRecord(
     val crawlTime: String,
     val title: String,
     val links: List<String>,
-    val matchedLinks: List<String>
+    val matchedLinks: List<String>,
 )

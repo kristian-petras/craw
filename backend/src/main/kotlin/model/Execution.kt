@@ -1,4 +1,5 @@
 @file:UseSerializers(DurationSerializer::class)
+
 package model
 
 import kotlinx.serialization.Serializable
@@ -11,5 +12,5 @@ import utility.DurationSerializer
 @Serializable
 data class Execution(
     val crawledRecords: List<CrawledRecord>,
-    val totalTime: String
+    val totalTime: String,
 )

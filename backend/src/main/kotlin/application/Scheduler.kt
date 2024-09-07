@@ -1,7 +1,11 @@
 package application
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.onClosed
+import kotlinx.coroutines.channels.onFailure
+import kotlinx.coroutines.channels.onSuccess
+import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.selects.onTimeout
@@ -13,7 +17,7 @@ import org.slf4j.LoggerFactory
 import utility.TimeProvider
 import utility.between
 import java.time.Instant
-import java.util.*
+import java.util.PriorityQueue
 import kotlin.time.Duration
 
 class Scheduler(private val timeProvider: TimeProvider) {
@@ -32,26 +36,26 @@ class Scheduler(private val timeProvider: TimeProvider) {
             .onClosed { throw IllegalStateException("Event channel was closed", it) }
     }
 
-    fun remove(recordId: Int): Boolean =
-        eventQueue.removeIf { it.payload.id == recordId }
-
+    fun remove(recordId: Int): Boolean = eventQueue.removeIf { it.payload.id == recordId }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun subscribe(): Flow<ExecutorSearch> = flow {
-        while (true) {
-            select {
-                eventChannel.onReceive {
-                    eventQueue.add(it)
-                }
-                onTimeout(durationUntilNextEvent()) {
-                    val event = eventQueue.poll()
-                        ?: error("Update flow timeout should wait indefinitely until an event is injected.")
-                    logger.info("Emitting event $event")
-                    emit(event.payload)
+    fun subscribe(): Flow<ExecutorSearch> =
+        flow {
+            while (true) {
+                select {
+                    eventChannel.onReceive {
+                        eventQueue.add(it)
+                    }
+                    onTimeout(durationUntilNextEvent()) {
+                        val event =
+                            eventQueue.poll()
+                                ?: error("Update flow timeout should wait indefinitely until an event is injected.")
+                        logger.info("Emitting event $event")
+                        emit(event.payload)
+                    }
                 }
             }
         }
-    }
 
     private fun durationUntilNextEvent(): Duration {
         val event = eventQueue.peek()?.timestamp ?: Instant.MAX

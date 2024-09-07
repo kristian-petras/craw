@@ -18,19 +18,24 @@ class Executor(timeProvider: TimeProvider) {
     private val crawler = Crawler()
 
     fun remove(recordId: Int) = scheduler.remove(recordId)
-    fun schedule(search: ExecutorSearch, timestamp: Instant) = scheduler.schedule(Event(timestamp, search))
+
+    fun schedule(
+        search: ExecutorSearch,
+        timestamp: Instant,
+    ) = scheduler.schedule(Event(timestamp, search))
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun subscribe(): Flow<Pair<Int, Execution>> = scheduler
-        .subscribe()
-        .flatMapMerge {
-            val records = crawler.recursiveCrawl(it.url, it.boundaryRegExp)
-            val totalTime = records
-                .sumOf { record -> Duration.parse(record.crawlTime).toDouble(DurationUnit.MILLISECONDS) }
-                .toDuration(DurationUnit.MILLISECONDS)
+    fun subscribe(): Flow<Pair<Int, Execution>> =
+        scheduler
+            .subscribe()
+            .flatMapMerge {
+                val records = crawler.recursiveCrawl(it.url, it.boundaryRegExp)
+                val totalTime =
+                    records
+                        .sumOf { record -> Duration.parse(record.crawlTime).toDouble(DurationUnit.MILLISECONDS) }
+                        .toDuration(DurationUnit.MILLISECONDS)
 
-            val execution = Execution(records, totalTime.toIsoString())
-            flowOf(it.id to execution)
-        }
+                val execution = Execution(records, totalTime.toIsoString())
+                flowOf(it.id to execution)
+            }
 }
-

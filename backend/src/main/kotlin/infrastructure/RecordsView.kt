@@ -1,9 +1,16 @@
 package infrastructure
 
-import io.ktor.server.application.*
-import io.ktor.server.html.*
-import io.ktor.server.routing.*
-import kotlinx.html.*
+import io.ktor.server.application.Application
+import io.ktor.server.application.call
+import io.ktor.server.html.respondHtml
+import io.ktor.server.routing.get
+import io.ktor.server.routing.routing
+import kotlinx.html.HTML
+import kotlinx.html.body
+import kotlinx.html.head
+import kotlinx.html.link
+import kotlinx.html.script
+import kotlinx.html.title
 
 internal fun Application.table() {
     routing {
@@ -30,10 +37,6 @@ private fun HTML.table() {
         }
     }
     body {
-        table {
-            id = "example"
-            style = "width 100%"
-        }
         script {
             type = "text/javascript"
             src = "/static/table.js"

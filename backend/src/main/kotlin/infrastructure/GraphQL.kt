@@ -5,7 +5,8 @@ import domain.graphql.Identifier
 import domain.graphql.Node
 import domain.graphql.QueryResolver
 import domain.graphql.WebPage
-import io.ktor.server.application.*
+import io.ktor.server.application.Application
+import io.ktor.server.application.install
 
 internal fun Application.graphQL(queryResolver: QueryResolver) {
     install(GraphQL) {

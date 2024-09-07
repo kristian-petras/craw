@@ -13,7 +13,10 @@ import kotlin.time.Duration
 object DurationSerializer : KSerializer<Duration> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Duration", PrimitiveKind.STRING)
 
-    override fun serialize(encoder: Encoder, value: Duration) {
+    override fun serialize(
+        encoder: Encoder,
+        value: Duration,
+    ) {
         encoder.encodeString(value.toIsoString())
     }
 

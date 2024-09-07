@@ -1,4 +1,5 @@
 @file:UseSerializers(DurationSerializer::class)
+
 package model
 
 import kotlinx.serialization.Serializable
@@ -12,5 +13,5 @@ data class WebsiteRecordAdd(
     val periodicity: String,
     val label: String,
     val active: Boolean,
-    val tags: List<String>
+    val tags: List<String>,
 )

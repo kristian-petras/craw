@@ -1,22 +1,5 @@
-//
-//import io.ktor.client.*
-//import io.ktor.client.call.*
-//import io.ktor.client.plugins.contentnegotiation.*
-//import io.ktor.client.request.*
-//import io.ktor.client.statement.*
-//import io.ktor.http.*
-//import io.ktor.serialization.kotlinx.json.*
-//import io.ktor.server.config.*
-//import io.ktor.server.testing.*
-//import model.WebsiteRecord
-//import model.WebsiteRecordAdd
-//import model.WebsiteRecordDelete
-//import model.WebsiteRecordModify
-//import org.assertj.core.api.Assertions.assertThat
-//import org.assertj.core.api.Assertions.tuple
-//import org.junit.jupiter.api.Test
-//
-//internal class RoutingTest {
+class RoutingTest
+// internal class RoutingTest {
 //    @Test
 //    fun `client should be able to show all records`() = runIntegrationTest {
 //        // given
@@ -123,4 +106,4 @@
 //        }
 //        block(client)
 //    }
-//}
+// }

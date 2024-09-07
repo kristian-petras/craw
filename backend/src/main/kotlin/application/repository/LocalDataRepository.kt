@@ -4,8 +4,10 @@ import model.WebsiteRecord
 
 class LocalDataRepository : DataRepository {
     private val records = mutableMapOf<Int, WebsiteRecord>()
+
     override suspend fun getAll(): List<WebsiteRecord> = records.values.toList()
-    override suspend fun upsert(record: WebsiteRecord) : Boolean {
+
+    override suspend fun upsert(record: WebsiteRecord): Boolean {
         records[record.id] = record
         return true
     }

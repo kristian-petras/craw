@@ -1,4 +1,5 @@
 @file:UseSerializers(InstantSerializer::class, DurationSerializer::class)
+
 package model
 
 import kotlinx.serialization.Serializable
@@ -30,5 +31,5 @@ data class WebsiteRecord(
     val tags: List<String>,
     val executions: List<Execution>,
     val lastExecutionTimestamp: Instant?,
-    val lastExecutionStatus: Boolean?
+    val lastExecutionStatus: Boolean?,
 )

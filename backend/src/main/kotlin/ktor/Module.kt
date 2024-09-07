@@ -9,7 +9,7 @@ import domain.graphql.Node
 import domain.graphql.QueryResolver
 import domain.graphql.WebPage
 import infrastructure.configureRouting
-import io.ktor.server.application.*
+import io.ktor.server.application.Application
 import kotlinx.coroutines.launch
 import model.WebsiteRecord
 import sse.SseApp
@@ -19,11 +19,12 @@ import java.time.Instant
 fun Application.module() {
     val timeProvider = TimeProvider { Instant.now() }
     val env = environment.config.propertyOrNull("ktor.environment")?.getString()
-    val repository = when (env) {
-        "dev" -> MongoDataRepository(System.getenv("MONGO_DB_CONNECTION_STRING"))
-        "test" -> LocalDataRepository()
-        else -> LocalDataRepository()
-    }
+    val repository =
+        when (env) {
+            "dev" -> MongoDataRepository(System.getenv("MONGO_DB_CONNECTION_STRING"))
+            "test" -> LocalDataRepository()
+            else -> LocalDataRepository()
+        }
 
     val executor = Executor(timeProvider)
     val sseApp = SseApp()
@@ -33,7 +34,7 @@ fun Application.module() {
     configureRouting(
         sseApp,
         client,
-        DelegatingQueryResolver(client)
+        DelegatingQueryResolver(client),
     )
     launch { app.run() }
 }
@@ -46,14 +47,15 @@ class DelegatingQueryResolver(private val app: App.Client) : QueryResolver {
             .filter { it.toIdentifier() in webPages }
             .map { Node(null, it.url, null, emptyList(), it.toWebPage()) }
 
-    private fun WebsiteRecord.toWebPage(): WebPage = WebPage(
-        identifier = id.toString(),
-        label = label,
-        url = url,
-        regexp = boundaryRegExp,
-        tags = tags,
-        active = active
-    )
+    private fun WebsiteRecord.toWebPage(): WebPage =
+        WebPage(
+            identifier = id.toString(),
+            label = label,
+            url = url,
+            regexp = boundaryRegExp,
+            tags = tags,
+            active = active,
+        )
 
     private fun WebsiteRecord.toIdentifier(): Identifier = id.toString()
 }

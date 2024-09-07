@@ -5,5 +5,5 @@ data class Node(
     val url: String,
     val crawlTime: String?,
     val links: List<Node>,
-    val owner: WebPage
+    val owner: WebPage,
 )

@@ -12,17 +12,20 @@ import kotlinx.coroutines.flow.toList
 import model.WebsiteRecord
 
 class MongoDataRepository(connectionString: String) : DataRepository {
-    private val serverApi: ServerApi = ServerApi.builder()
-        .version(ServerApiVersion.V1)
-        .build()
-    private val mongoClientSettings: MongoClientSettings = MongoClientSettings.builder()
-        .applyConnectionString(ConnectionString(connectionString))
-        .serverApi(serverApi)
-        .build()
+    private val serverApi: ServerApi =
+        ServerApi.builder()
+            .version(ServerApiVersion.V1)
+            .build()
+    private val mongoClientSettings: MongoClientSettings =
+        MongoClientSettings.builder()
+            .applyConnectionString(ConnectionString(connectionString))
+            .serverApi(serverApi)
+            .build()
 
     private val mongoClient = MongoClient.create(mongoClientSettings)
     private val database = mongoClient.getDatabase("craw")
     private val collection = database.getCollection<WebsiteRecord>("websiteRecords")
+
     override suspend fun getAll(): List<WebsiteRecord> = collection.find().toList()
 
     override suspend fun upsert(record: WebsiteRecord): Boolean {

@@ -2,6 +2,7 @@ plugins {
     kotlin("jvm") version "2.0.0"
     kotlin("plugin.serialization") version "2.0.0"
     id("io.ktor.plugin") version "2.3.12"
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
 }
 
 group = "org.pudink"
@@ -49,6 +50,11 @@ dependencies {
     testImplementation("io.ktor:ktor-client-mock")
     testImplementation("io.ktor:ktor-server-html-builder")
     testImplementation("io.ktor:ktor-server-test-host")
+
+    implementation("org.jetbrains.exposed:exposed-core:0.54.0")
+    implementation("org.jetbrains.exposed:exposed-dao:0.54.0")
+
+    implementation("com.h2database:h2:2.3.232")
 }
 
 kotlin {

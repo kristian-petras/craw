@@ -9,13 +9,15 @@ import kotlinx.serialization.json.Json
 
 class SseApp {
     private val events = MutableSharedFlow<String>()
+
     suspend fun sendUpdate(update: List<VisModel>) {
         println("sending update $update")
         update.forEach {
-            val payload = when (it) {
-                is VisModel.Edge -> Json.encodeToString(it).also { events.emit("event: edge\n") }
-                is VisModel.Node -> Json.encodeToString(it).also { events.emit("event: node\n") }
-            }
+            val payload =
+                when (it) {
+                    is VisModel.Edge -> Json.encodeToString(it).also { events.emit("event: edge\n") }
+                    is VisModel.Node -> Json.encodeToString(it).also { events.emit("event: node\n") }
+                }
             events.emit("data: $payload\n\n")
         }
     }

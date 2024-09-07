@@ -2,10 +2,14 @@ package infrastructure
 
 import application.App
 import domain.graphql.QueryResolver
-import io.ktor.server.application.*
+import io.ktor.server.application.Application
 import sse.SseApp
 
-fun Application.configureRouting(sseApp: SseApp, client: App.Client, queryResolver: QueryResolver) {
+fun Application.configureRouting(
+    sseApp: SseApp,
+    client: App.Client,
+    queryResolver: QueryResolver,
+) {
     documentation()
     graphQL(queryResolver)
     rest(client)
