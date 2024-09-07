@@ -27,7 +27,7 @@ dependencies {
     implementation("com.apurebase:kgraphql:0.19.0")
     implementation("com.apurebase:kgraphql-ktor:0.19.0")
 
-    implementation("com.expediagroup:graphql-kotlin-ktor-server:8.0.0-alpha.3")
+    implementation("com.expediagroup:graphql-kotlin-ktor-server:8.0.0")
     implementation("org.mongodb:mongodb-driver-kotlin-coroutine:4.10.1")
 
     implementation("io.ktor:ktor-server-core-jvm")
@@ -40,6 +40,7 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation")
     implementation("io.ktor:ktor-client-okhttp")
     implementation("io.ktor:ktor-server-html-builder-jvm")
+    implementation("io.ktor:ktor-server-swagger")
 
     testImplementation(kotlin("test"))
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
