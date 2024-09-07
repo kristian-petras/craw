@@ -1,3 +1,4 @@
+import io.github.cdimascio.dotenv.dotenv
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -34,12 +35,10 @@ class City(id: EntityID<Int>) : IntEntity(id) {
 }
 
 fun main() {
-    val database = Database.connect(
-        url = "jdbc:h2:file:./backend/data/test;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE",
-        user = "root",
-        driver = "org.h2.Driver",
-        password = ""
-    )
+    val dotenv = dotenv()
+    val password = dotenv["POSTGRES_PASSWORD"]
+
+    val database = DatabaseFactory.postgres(password)
 
     transaction(database) {
         addLogger(StdOutSqlLogger)

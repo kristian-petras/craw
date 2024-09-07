@@ -56,6 +56,10 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-jdbc:0.54.0")
 
     implementation("com.h2database:h2:2.3.232")
+    implementation("org.postgresql:postgresql:42.7.4")
+
+    implementation("io.github.cdimascio:dotenv-kotlin:6.4.2")
+
 }
 
 kotlin {
