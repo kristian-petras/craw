@@ -6,6 +6,7 @@ import com.craw.schema.database.ExecutionsTable
 import com.craw.schema.database.RecordEntity
 import com.craw.schema.database.RecordsTable
 import com.craw.schema.internal.RecordCreate
+import com.craw.schema.internal.RecordDelete
 import com.craw.schema.internal.RecordState
 import com.craw.schema.internal.RecordUpdate
 import com.craw.translator.DatabaseTranslator
@@ -38,8 +39,8 @@ class Repository(private val translator: DatabaseTranslator, private val databas
     /**
      * Deletes a record and all associated executions and crawls.
      */
-    fun delete(recordId: String): Boolean = transaction(database) {
-        val record = RecordEntity.findById(recordId.toUUID()) ?: return@transaction false
+    fun delete(recordDelete: RecordDelete): Boolean = transaction(database) {
+        val record = RecordEntity.findById(recordDelete.recordId.toUUID()) ?: return@transaction false
         val executions = record.executions
         executions.flatMap { it.crawls }.forEach { it.delete() }
         executions.forEach { it.delete() }

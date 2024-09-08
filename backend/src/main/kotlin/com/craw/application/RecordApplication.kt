@@ -45,7 +45,8 @@ class RecordApplication(
     }
 
     fun delete(record: WebsiteRecordDelete): Boolean {
-        return repository.delete(record.recordId)
+        val delete = translator.translate(record)
+        return repository.delete(delete)
     }
 
     private fun RecordCreate.toSchedule(id: String): ExecutionSchedule = ExecutionSchedule(
