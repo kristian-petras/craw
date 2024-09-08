@@ -1,7 +1,7 @@
 package com.craw.ktor
 
 import com.craw.GraphApplication
-import com.craw.ktor.Serialization.json
+import com.craw.ktor.SerializationModule.json
 import com.craw.ktor.ServerSentEvents.ServerSentEvent
 import com.craw.ktor.ServerSentEvents.sse
 import io.ktor.server.routing.Route
