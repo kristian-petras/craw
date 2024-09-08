@@ -1,22 +1,27 @@
 package com.craw.schema.graph
 
 import kotlinx.datetime.Instant
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class Graph(
     val nodes: List<GraphRootNode>,
 )
 
+@Serializable
 data class GraphRootNode(
     val executions: List<GraphExecution>,
     val nodes: List<GraphNode>,
 )
 
+@Serializable
 enum class GraphExecutionType {
     SCHEDULED,
     RUNNING,
     COMPLETED
 }
 
+@Serializable
 data class GraphExecution(
     val type: GraphExecutionType,
     val recordId: String,
@@ -25,6 +30,7 @@ data class GraphExecution(
     val end: Instant?,
 )
 
+@Serializable
 enum class GraphNodeType {
     PENDING,
     RUNNING,
@@ -32,6 +38,7 @@ enum class GraphNodeType {
     INVALID,
 }
 
+@Serializable
 data class GraphNode(
     val type: GraphNodeType,
     val nodeId: String,
