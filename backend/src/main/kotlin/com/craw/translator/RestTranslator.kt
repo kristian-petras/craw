@@ -2,9 +2,9 @@ package com.craw.translator
 
 import com.craw.schema.internal.Crawl
 import com.craw.schema.internal.Execution
-import com.craw.schema.internal.Record
 import com.craw.schema.internal.RecordCreate
 import com.craw.schema.internal.RecordDelete
+import com.craw.schema.internal.RecordState
 import com.craw.schema.internal.RecordUpdate
 import com.craw.schema.rest.WebsiteExecution
 import com.craw.schema.rest.WebsiteRecord
@@ -13,7 +13,7 @@ import com.craw.schema.rest.WebsiteRecordDelete
 import com.craw.schema.rest.WebsiteRecordUpdate
 
 class RestTranslator {
-    fun translate(record: Record): WebsiteRecord = WebsiteRecord(
+    fun translate(record: RecordState): WebsiteRecord = WebsiteRecord(
         recordId = record.recordId,
         url = record.baseUrl,
         regexp = record.regexp,

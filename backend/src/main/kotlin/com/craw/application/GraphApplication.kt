@@ -2,7 +2,7 @@ package com.craw.application
 
 import com.craw.schema.graph.Graph
 import com.craw.schema.graph.GraphRootNode
-import com.craw.schema.internal.Record
+import com.craw.schema.internal.RecordState
 import com.craw.translator.GraphTranslator
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.asStateFlow
 class GraphApplication(private val translator: GraphTranslator) {
     private val state = MutableStateFlow(Graph(emptyList()))
 
-    fun update(record: Record) {
+    fun update(record: RecordState) {
         val oldGraph = state.value
         val node = translator.translate(record) ?: return
         state.value = oldGraph.replaceNode(node)

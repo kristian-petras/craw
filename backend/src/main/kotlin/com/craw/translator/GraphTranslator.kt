@@ -8,10 +8,10 @@ import com.craw.schema.graph.GraphRecord
 import com.craw.schema.graph.GraphRootNode
 import com.craw.schema.internal.Crawl
 import com.craw.schema.internal.Execution
-import com.craw.schema.internal.Record
+import com.craw.schema.internal.RecordState
 
 class GraphTranslator {
-    fun translate(record: Record): GraphRootNode? {
+    fun translate(record: RecordState): GraphRootNode? {
         val execution = record.executions.lastOrNull() ?: return null
         return GraphRootNode(
             record = record.toGraphRecord(),
@@ -20,7 +20,7 @@ class GraphTranslator {
         )
     }
 
-    private fun Record.toGraphRecord(): GraphRecord = GraphRecord(
+    private fun RecordState.toGraphRecord(): GraphRecord = GraphRecord(
         recordId = recordId,
         regexp = regexp,
         label = label,

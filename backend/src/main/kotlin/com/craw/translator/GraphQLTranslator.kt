@@ -4,11 +4,11 @@ import com.craw.schema.graphql.Node
 import com.craw.schema.graphql.WebPage
 import com.craw.schema.internal.Crawl
 import com.craw.schema.internal.Execution
-import com.craw.schema.internal.Record
+import com.craw.schema.internal.RecordState
 import com.expediagroup.graphql.generator.scalars.ID
 
 class GraphQLTranslator {
-    fun translate(record: Record): WebPage = WebPage(
+    fun translate(record: RecordState): WebPage = WebPage(
         identifier = ID(record.recordId),
         label = record.label,
         url = record.baseUrl,
