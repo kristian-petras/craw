@@ -1,6 +1,6 @@
 package com.craw.ktor
 
-import com.craw.RecordApplication
+import com.craw.application.RecordApplication
 import com.craw.schema.rest.WebsiteRecordCreate
 import com.craw.schema.rest.WebsiteRecordDelete
 import com.craw.schema.rest.WebsiteRecordUpdate

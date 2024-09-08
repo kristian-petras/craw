@@ -1,8 +1,8 @@
 package com.craw.ktor
 
-import com.craw.GraphApplication
-import com.craw.GraphQLApplication
-import com.craw.RecordApplication
+import com.craw.application.GraphApplication
+import com.craw.application.GraphQLApplication
+import com.craw.application.RecordApplication
 import io.ktor.server.application.Application
 import io.ktor.server.routing.routing
 

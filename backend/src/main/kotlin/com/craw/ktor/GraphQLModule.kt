@@ -1,6 +1,6 @@
 package com.craw.ktor
 
-import com.craw.GraphQLApplication
+import com.craw.application.GraphQLApplication
 import com.expediagroup.graphql.server.ktor.GraphQL
 import com.expediagroup.graphql.server.ktor.graphQLGetRoute
 import com.expediagroup.graphql.server.ktor.graphQLPostRoute
