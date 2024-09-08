@@ -1,4 +1,4 @@
-package com.craw
+package com.craw.translator
 
 import com.craw.schema.graphql.Node
 import com.craw.schema.graphql.WebPage
