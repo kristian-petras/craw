@@ -42,6 +42,9 @@ dependencies {
     implementation("io.ktor:ktor-server-html-builder-jvm")
     implementation("io.ktor:ktor-server-swagger")
 
+
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
+
     testImplementation(kotlin("test"))
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
 
