@@ -1,6 +1,7 @@
 package utility
 
-import java.time.Instant
+import kotlinx.datetime.Instant
+
 
 fun interface TimeProvider {
     fun now(): Instant
