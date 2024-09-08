@@ -3,7 +3,7 @@ package com.craw.application
 import com.craw.schema.graph.Graph
 import com.craw.schema.graph.GraphRootNode
 import com.craw.schema.internal.RecordState
-import com.craw.translator.GraphTranslator
+import com.craw.translator.SseTranslator
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
  * Publishes graph state to subscribers.
  * It is expected that all updates on records are propagated to this class.
  */
-class GraphApplication(private val translator: GraphTranslator) {
+class GraphApplication(private val translator: SseTranslator) {
     private val state = MutableStateFlow(Graph(emptyList()))
 
     fun update(record: RecordState) {

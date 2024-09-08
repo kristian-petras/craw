@@ -10,7 +10,7 @@ import com.craw.schema.internal.Crawl
 import com.craw.schema.internal.Execution
 import com.craw.schema.internal.RecordState
 
-class GraphTranslator {
+class SseTranslator {
     fun translate(record: RecordState): GraphRootNode? {
         val execution = record.executions.lastOrNull() ?: return null
         return GraphRootNode(

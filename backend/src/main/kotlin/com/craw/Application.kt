@@ -1,11 +1,47 @@
 package com.craw
 
+import DatabaseFactory
+import com.craw.application.Crawler
+import com.craw.application.Executor
+import com.craw.application.GraphApplication
+import com.craw.application.GraphQLApplication
+import com.craw.application.RecordApplication
+import com.craw.application.Repository
 import com.craw.ktor.CrawlerServer
+import com.craw.translator.DatabaseTranslator
+import com.craw.translator.GraphQLTranslator
+import com.craw.translator.RestTranslator
+import com.craw.translator.SseTranslator
+import io.github.cdimascio.dotenv.dotenv
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.embeddedServer
+import kotlinx.datetime.Clock
+import utility.TimeProvider
 
 fun main() {
-    val server = CrawlerServer(graphQLApplication = TODO(), graphApplication = TODO(), recordApplication = TODO())
+    val sseTranslator = SseTranslator()
+    val graphQLTranslator = GraphQLTranslator()
+    val restTranslator = RestTranslator()
+    val databaseTranslator = DatabaseTranslator()
+
+    val environment = dotenv()
+    val database = DatabaseFactory.postgres(environment["POSTGRES_PASSWORD"]!!)
+    val repository = Repository(translator = databaseTranslator, database = database)
+
+    val timeProvider = TimeProvider { Clock.System.now() }
+    val crawler = Crawler()
+    val executor = Executor(timeProvider = timeProvider, crawler = crawler)
+
+    val graphQLApplication = GraphQLApplication(translator = graphQLTranslator, repository = repository)
+    val graphApplication = GraphApplication(translator = sseTranslator)
+    val recordApplication = RecordApplication(translator = restTranslator, repository = repository, executor = executor)
+
+    val server = CrawlerServer(
+        graphQLApplication = graphQLApplication,
+        graphApplication = graphApplication,
+        recordApplication = recordApplication
+    )
+
     embeddedServer(
         factory = CIO,
         port = 8080,
