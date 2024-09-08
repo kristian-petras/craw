@@ -10,8 +10,8 @@ data class Graph(
 
 @Serializable
 data class GraphRootNode(
-    val executions: List<GraphExecution>,
-    val nodes: List<GraphNode>,
+    val execution: GraphExecution,
+    val node: GraphNode,
 )
 
 @Serializable
