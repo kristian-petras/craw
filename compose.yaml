@@ -1,13 +1,15 @@
 services:
   postgres:
     image: postgres:alpine3.20
+    container_name: postgres
     restart: always
     ports:
       - 5432:5432
     volumes:
-      - data:/var/lib/postgresql/data/pgdata
+      - postgres_data:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
 volumes:
-  data:
+  postgres_data:
+    driver: local
