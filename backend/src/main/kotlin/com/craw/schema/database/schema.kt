@@ -11,7 +11,6 @@ import java.util.UUID
 
 
 object RecordsTable : UUIDTable() {
-    val name = varchar("name", 255)
     val url = varchar("url", 255)
     val regexp = varchar("regexp", 255)
     val periodicity = varchar("periodicity", 255)
@@ -23,7 +22,6 @@ object RecordsTable : UUIDTable() {
 class RecordEntity(id: EntityID<UUID>) : UUIDEntity(id) {
     companion object : UUIDEntityClass<RecordEntity>(RecordsTable)
 
-    var name by RecordsTable.name
     var url by RecordsTable.url
     var regexp by RecordsTable.regexp
     var periodicity by RecordsTable.periodicity
