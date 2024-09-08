@@ -10,6 +10,7 @@ data class Graph(
 
 @Serializable
 data class GraphRootNode(
+    val record: GraphRecord,
     val execution: GraphExecution,
     val node: GraphNode,
 )
@@ -22,9 +23,18 @@ enum class GraphExecutionType {
 }
 
 @Serializable
+data class GraphRecord(
+    val recordId: String,
+    val regexp: String,
+    val periodicity: String,
+    val label: String,
+    val active: Boolean,
+    val tags: List<String>,
+)
+
+@Serializable
 data class GraphExecution(
     val type: GraphExecutionType,
-    val recordId: String,
     val executionId: String,
     val start: Instant,
     val end: Instant?,
@@ -41,10 +51,9 @@ enum class GraphNodeType {
 @Serializable
 data class GraphNode(
     val type: GraphNodeType,
-    val nodeId: String,
     val url: String,
     val title: String?,
-    val start: Instant,
+    val start: Instant?,
     val end: Instant?,
     val nodes: List<GraphNode>,
 )
