@@ -1,6 +1,6 @@
 package com.craw.ktor
 
-import GraphApplication
+import com.craw.GraphApplication
 import com.craw.ktor.Serialization.json
 import com.craw.ktor.ServerSentEvents.ServerSentEvent
 import com.craw.ktor.ServerSentEvents.sse
