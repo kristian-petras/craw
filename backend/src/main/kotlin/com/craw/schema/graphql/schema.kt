@@ -1,4 +1,4 @@
-package com.craw.schema
+package com.craw.schema.graphql
 
 import com.expediagroup.graphql.generator.scalars.ID
 import com.expediagroup.graphql.server.operations.Query
