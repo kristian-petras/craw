@@ -1,10 +1,12 @@
 package utility
 
-import java.time.Instant
+import kotlinx.datetime.Instant
+import kotlinx.datetime.toJavaInstant
+import java.time.Duration.between
 import kotlin.time.Duration
 import kotlin.time.toKotlinDuration
 
 fun Duration.Companion.between(
     startInclusive: Instant,
     endExclusive: Instant,
-): Duration = java.time.Duration.between(startInclusive, endExclusive).toKotlinDuration()
+): Duration = between(startInclusive.toJavaInstant(), endExclusive.toJavaInstant()).toKotlinDuration()

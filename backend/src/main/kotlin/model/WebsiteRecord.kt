@@ -1,12 +1,11 @@
-@file:UseSerializers(InstantSerializer::class, DurationSerializer::class)
+@file:UseSerializers(DurationSerializer::class)
 
 package model
 
+import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import utility.DurationSerializer
-import utility.InstantSerializer
-import java.time.Instant
 
 /**
  * Website record used to keep track of websites to crawl.
