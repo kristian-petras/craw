@@ -1,4 +1,4 @@
-package com.craw
+package com.craw.application
 
 import com.craw.schema.rest.WebsiteRecord
 import com.craw.schema.rest.WebsiteRecordCreate

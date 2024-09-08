@@ -1,4 +1,4 @@
-package com.craw
+package com.craw.application
 
 import com.craw.schema.graph.Graph
 import kotlinx.coroutines.flow.Flow
