@@ -4,6 +4,7 @@ import org.jetbrains.exposed.dao.UUIDEntity
 import org.jetbrains.exposed.dao.UUIDEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.UUIDTable
+import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.javatime.timestamp
 import java.util.UUID
@@ -33,8 +34,8 @@ class RecordEntity(id: EntityID<UUID>) : UUIDEntity(id) {
 }
 
 object CrawlRelationsTable : Table() {
-    val parent = reference("parent_id", CrawlsTable)
-    val child = reference("child_id", CrawlsTable)
+    val parent = reference("parent_id", CrawlsTable, onDelete = ReferenceOption.CASCADE)
+    val child = reference("child_id", CrawlsTable, onDelete = ReferenceOption.CASCADE)
 }
 
 enum class CrawlType {
