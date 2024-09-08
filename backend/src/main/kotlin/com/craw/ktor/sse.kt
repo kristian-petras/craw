@@ -15,26 +15,33 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onEach
 
-fun Route.sse(endpoint: String, messages: Flow<SseMessage>, dispatcher: CoroutineDispatcher = Dispatchers.IO) {
-    get(endpoint) {
-        call.response.cacheControl(CacheControl.NoCache(null))
-        call.response.header("Connection", "keep-alive")
-        call.respondTextWriter(contentType = ContentType.Text.EventStream) {
-            messages
-                .onEach {
-                    if (it.event != null) {
-                        write("event: ${it.event}\n")
+object ServerSentEvents {
+    fun Route.sse(
+        endpoint: String,
+        dispatcher: CoroutineDispatcher = Dispatchers.IO,
+        messages: () -> Flow<ServerSentEvent>,
+    ) {
+        get(endpoint) {
+            call.response.cacheControl(CacheControl.NoCache(null))
+            call.response.header("Connection", "keep-alive")
+            call.respondTextWriter(contentType = ContentType.Text.EventStream) {
+                messages()
+                    .onEach {
+                        if (it.event != null) {
+                            write("event: ${it.event}\n")
+                        }
+                        write("data: ${it.data}\n")
+                        flush()
                     }
-                    write("data: ${it.data}\n")
-                    flush()
-                }
-                .flowOn(dispatcher).collect()
+                    .flowOn(dispatcher).collect()
+            }
         }
     }
+
+    data class ServerSentEvent(
+        val event: String?,
+        val data: String,
+    )
 }
 
 
-data class SseMessage(
-    val event: String?,
-    val data: String,
-)
