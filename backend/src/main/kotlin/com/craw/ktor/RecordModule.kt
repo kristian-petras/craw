@@ -15,7 +15,7 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.put
 import io.ktor.server.routing.route
 
-object RecordRoutes {
+object RecordModule {
     fun Route.routes(app: RecordApplication) {
         route("/records") {
             get {

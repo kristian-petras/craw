@@ -8,7 +8,7 @@ import io.ktor.server.routing.Route
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.encodeToString
 
-object GraphRoutes {
+object GraphModule {
     fun Route.routes(app: GraphApplication) {
         sse("graph") {
             app.subscribe()
