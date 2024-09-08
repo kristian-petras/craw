@@ -50,6 +50,13 @@ class SseTranslator {
             start = start,
             end = null
         )
+
+        is Execution.Removed -> GraphExecution(
+            type = GraphExecutionType.COMPLETED,
+            executionId = executionId,
+            start = start,
+            end = end
+        )
     }
 
     private fun Execution.toGraphNode(): GraphNode = when (this) {
@@ -62,6 +69,15 @@ class SseTranslator {
             title = null,
             start = start,
             end = null,
+            nodes = emptyList()
+        )
+
+        is Execution.Removed -> GraphNode(
+            type = GraphNodeType.INVALID,
+            url = baseUrl,
+            title = null,
+            start = start,
+            end = end,
             nodes = emptyList()
         )
     }

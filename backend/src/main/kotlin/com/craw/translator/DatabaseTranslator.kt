@@ -24,6 +24,19 @@ class DatabaseTranslator {
         )
     }
 
+    /**
+     * Translate completed execution
+     */
+    fun translate(execution: ExecutionEntity, crawl: CrawlEntity): Execution.Completed = Execution.Completed(
+        executionId = execution.id.value.toString(),
+        baseUrl = execution.record.url,
+        regexp = execution.record.regexp,
+        start = execution.start.toKotlinInstant(),
+        end = execution.end?.toKotlinInstant()
+            ?: error("Execution ${execution.id} is completed but has no end time"),
+        crawl = translate(crawl) as Crawl.Completed
+    )
+
     fun translate(execution: ExecutionEntity): Execution = when (execution.type) {
         ExecutionType.COMPLETED -> Execution.Completed(
             executionId = execution.id.value.toString(),
@@ -50,6 +63,14 @@ class DatabaseTranslator {
             start = execution.start.toKotlinInstant(),
             baseUrl = execution.record.url,
             regexp = execution.record.regexp
+        )
+
+        ExecutionType.INVALID -> Execution.Removed(
+            executionId = execution.id.value.toString(),
+            start = execution.start.toKotlinInstant(),
+            end = execution.end?.toKotlinInstant()
+                ?: error("Execution ${execution.id} is invalid but has no end time"),
+            baseUrl = execution.record.url
         )
     }
 

@@ -68,7 +68,8 @@ class CrawlEntity(id: EntityID<UUID>) : UUIDEntity(id) {
 enum class ExecutionType {
     COMPLETED,
     RUNNING,
-    SCHEDULED
+    SCHEDULED,
+    INVALID
 }
 
 object ExecutionsTable : UUIDTable() {

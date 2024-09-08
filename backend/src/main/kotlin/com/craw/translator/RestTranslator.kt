@@ -71,6 +71,14 @@ class RestTranslator {
             title = null,
             links = emptyList()
         )
+
+        is Execution.Removed -> WebsiteExecution(
+            url = execution.baseUrl,
+            start = execution.start,
+            end = execution.end,
+            title = null,
+            links = emptyList()
+        )
     }
 
     private fun Crawl.toTitle(): String? = when (this) {
