@@ -1,7 +1,6 @@
 package com.craw.schema.internal
 
 import kotlinx.datetime.Instant
-import kotlinx.datetime.toJavaInstant
 import utility.between
 import kotlin.time.Duration
 
@@ -28,7 +27,7 @@ sealed interface Crawl {
         val end: Instant,
         val crawls: List<Crawl>,
     ) : Crawl {
-        val crawlTime: Duration = Duration.between(start.toJavaInstant(), end.toJavaInstant())
+        val crawlTime: Duration = Duration.between(start, end)
     }
 
     data class Invalid(

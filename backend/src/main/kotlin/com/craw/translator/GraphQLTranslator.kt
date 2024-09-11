@@ -20,7 +20,7 @@ class GraphQLTranslator {
     fun translate(owner: WebPage, execution: Execution): Node = when (execution) {
         is Execution.Completed -> translate(owner, execution.crawl)
         is Execution.Running -> translate(owner, execution.crawl)
-        is Execution.Scheduled -> Node(
+        is Execution.Scheduled, is Execution.Removed -> Node(
             title = null,
             url = owner.url,
             crawlTime = null,
@@ -45,10 +45,5 @@ class GraphQLTranslator {
             links = emptyList(),
             owner = owner
         )
-    }
-
-    private fun Crawl.toTitle(): String? = when (this) {
-        is Crawl.Completed -> title
-        is Crawl.Running, is Crawl.Invalid, is Crawl.Pending -> null
     }
 }

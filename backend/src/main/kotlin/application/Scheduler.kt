@@ -10,13 +10,14 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.selects.onTimeout
 import kotlinx.coroutines.selects.select
+import kotlinx.datetime.Instant
+import kotlinx.datetime.toKotlinInstant
 import model.Event
 import model.ExecutorSearch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import utility.TimeProvider
 import utility.between
-import java.time.Instant
 import java.util.PriorityQueue
 import kotlin.time.Duration
 
@@ -58,7 +59,7 @@ class Scheduler(private val timeProvider: TimeProvider) {
         }
 
     private fun durationUntilNextEvent(): Duration {
-        val event = eventQueue.peek()?.timestamp ?: Instant.MAX
+        val event = eventQueue.peek()?.timestamp?.toKotlinInstant() ?: Instant.DISTANT_FUTURE
         return Duration.between(timeProvider.now(), event)
     }
 }

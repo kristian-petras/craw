@@ -24,6 +24,7 @@ class DatabaseTranslator {
         )
     }
 
+    // TODO remove
     /**
      * Translate completed execution
      */
@@ -83,14 +84,14 @@ class DatabaseTranslator {
         CrawlType.RUNNING -> Crawl.Running(
             crawlId = crawl.id.value.toString(),
             url = crawl.url,
-            start = crawl.start.toKotlinInstant()
+            start = crawl.start?.toKotlinInstant() ?: error("Crawl ${crawl.id} is running but has no start time")
         )
 
         CrawlType.COMPLETED -> Crawl.Completed(
             crawlId = crawl.id.value.toString(),
             url = crawl.url,
             title = crawl.title,
-            start = crawl.start.toKotlinInstant(),
+            start = crawl.start?.toKotlinInstant() ?: error("Crawl ${crawl.id} is completed but has no start time"),
             end = crawl.end?.toKotlinInstant() ?: error("Crawl ${crawl.id} is completed but has no end time"),
             crawls = crawl.children.map { translate(it) }
         )

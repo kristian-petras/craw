@@ -41,7 +41,7 @@ class RecordApplication(
         executor.remove(record.recordId)
         executor.schedule(schedule)
 
-        return repository.update(updatedRecord)
+        return repository.invalidate(updatedRecord)
     }
 
     fun delete(record: WebsiteRecordDelete): Boolean {

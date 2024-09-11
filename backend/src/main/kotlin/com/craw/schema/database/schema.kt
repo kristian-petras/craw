@@ -45,9 +45,9 @@ enum class CrawlType {
 
 object CrawlsTable : UUIDTable() {
     val url = varchar("url", 255)
-    val title = varchar("title", 255).nullable()
-    val start = timestamp("start")
-    val end = timestamp("end").nullable()
+    val title = varchar("title", 255).nullable().default(null)
+    val start = timestamp("start").nullable().default(null)
+    val end = timestamp("end").nullable().default(null)
     val type = enumerationByName<CrawlType>("type", 255)
     val execution = reference("execution", ExecutionsTable)
 }
@@ -61,7 +61,7 @@ class CrawlEntity(id: EntityID<UUID>) : UUIDEntity(id) {
     var end by CrawlsTable.end
     var type by CrawlsTable.type
     var execution by ExecutionEntity referencedOn CrawlsTable.execution
-    var parents by CrawlEntity.via(CrawlRelationsTable.child, CrawlRelationsTable.parent)
+    var parent by CrawlEntity.via(CrawlRelationsTable.child, CrawlRelationsTable.parent)
     var children by CrawlEntity.via(CrawlRelationsTable.parent, CrawlRelationsTable.child)
 }
 
@@ -76,7 +76,7 @@ object ExecutionsTable : UUIDTable() {
     val url = varchar("url", 255)
     val regexp = varchar("regexp", 255)
     val start = timestamp("start")
-    val end = timestamp("end").nullable()
+    val end = timestamp("end").nullable().default(null)
     val type = enumerationByName<ExecutionType>("type", 255)
     val record = reference("record", RecordsTable)
 }
@@ -93,5 +93,5 @@ class ExecutionEntity(id: EntityID<UUID>) : UUIDEntity(id) {
     val crawls by CrawlEntity referrersOn CrawlsTable.execution
 
     val rootCrawl: CrawlEntity?
-        get() = crawls.singleOrNull { it.parents.empty() }
+        get() = crawls.singleOrNull { it.parent.empty() }
 }

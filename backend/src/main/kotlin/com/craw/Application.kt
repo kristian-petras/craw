@@ -13,9 +13,12 @@ import com.craw.translator.GraphQLTranslator
 import com.craw.translator.RestTranslator
 import com.craw.translator.SseTranslator
 import io.github.cdimascio.dotenv.dotenv
+import io.ktor.client.*
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.embeddedServer
+import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.Clock
+import okhttp3.Dispatcher
 import utility.TimeProvider
 
 fun main() {
@@ -29,8 +32,13 @@ fun main() {
     val repository = Repository(translator = databaseTranslator, database = database)
 
     val timeProvider = TimeProvider { Clock.System.now() }
-    val crawler = Crawler()
-    val executor = Executor(timeProvider = timeProvider, crawler = crawler)
+    val crawler = Crawler(
+        timeProvider = timeProvider,
+        repository = repository,
+        client = HttpClient(),
+        dispatcher = Dispatchers.IO
+    )
+    val executor = Executor(timeProvider = timeProvider, crawler = crawler, repository = repository)
 
     val graphQLApplication = GraphQLApplication(translator = graphQLTranslator, repository = repository)
     val graphApplication = GraphApplication(translator = sseTranslator)
@@ -39,7 +47,8 @@ fun main() {
     val server = CrawlerServer(
         graphQLApplication = graphQLApplication,
         graphApplication = graphApplication,
-        recordApplication = recordApplication
+        recordApplication = recordApplication,
+        executor = executor,
     )
 
     embeddedServer(
