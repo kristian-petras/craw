@@ -1,6 +1,6 @@
 package com.craw
 
-import DatabaseFactory
+import com.craw.utility.DatabaseFactory
 import com.craw.application.Crawler
 import com.craw.application.Executor
 import com.craw.application.GraphApplication
@@ -18,8 +18,7 @@ import io.ktor.server.cio.CIO
 import io.ktor.server.engine.embeddedServer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.Clock
-import okhttp3.Dispatcher
-import utility.TimeProvider
+import com.craw.utility.TimeProvider
 
 fun main() {
     val sseTranslator = SseTranslator()

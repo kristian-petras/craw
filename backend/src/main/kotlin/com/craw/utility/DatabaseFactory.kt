@@ -1,3 +1,5 @@
+package com.craw.utility
+
 import org.jetbrains.exposed.sql.Database
 
 object DatabaseFactory {

@@ -13,7 +13,7 @@ import kotlinx.datetime.Instant
 import org.jsoup.Jsoup
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import utility.TimeProvider
+import com.craw.utility.TimeProvider
 import java.net.URI
 import kotlin.time.measureTime
 

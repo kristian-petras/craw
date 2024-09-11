@@ -1,4 +1,4 @@
-package utility
+package com.craw.utility
 
 import kotlinx.datetime.Instant
 import kotlinx.datetime.toJavaInstant
