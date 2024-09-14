@@ -17,17 +17,7 @@ class GraphQLTranslator {
         active = record.active,
     )
 
-    fun translate(owner: WebPage, execution: Execution): Node = when (execution) {
-        is Execution.Completed -> translate(owner, execution.crawl)
-        is Execution.Running -> translate(owner, execution.crawl)
-        is Execution.Scheduled, is Execution.Removed -> Node(
-            title = null,
-            url = owner.url,
-            crawlTime = null,
-            links = emptyList(),
-            owner = owner
-        )
-    }
+    fun translate(owner: WebPage, execution: Execution): Node = translate(owner, execution.crawl)
 
     private fun translate(owner: WebPage, crawl: Crawl): Node = when (crawl) {
         is Crawl.Completed -> Node(
