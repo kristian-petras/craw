@@ -27,6 +27,7 @@ class Crawler(
     private val dispatcher: CoroutineDispatcher,
 ) {
     private val updateChannel = Channel<Unit>(Channel.UNLIMITED)
+    // TODO: website cache with expiration
 
     fun crawl(
         executionId: String,
@@ -123,6 +124,7 @@ class Crawler(
     ): ParseResult {
         val payload = client.get(url)
         if (payload.status.isSuccess()) {
+            logger.info("Fetched $url with status ${payload.status}")
             return parser.parse(payload.bodyAsText(), regex)
         } else {
             logger.error("Failed to fetch $url with status ${payload.status}")

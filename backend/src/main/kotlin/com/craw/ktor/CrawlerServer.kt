@@ -19,6 +19,7 @@ import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.call
 import io.ktor.server.application.install
+import io.ktor.server.application.log
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.plugins.swagger.swaggerUI
@@ -65,35 +66,46 @@ internal fun Application.module(
 private fun Route.restRoutes(app: RecordApplication) {
     route("/records") {
         get {
+            call.application.log.info("Request: GET /records")
             val records = app.getAll()
+            call.application.log.info("Response: GET /records $records")
             call.respond(HttpStatusCode.OK, records)
         }
     }
     route("/record") {
         get {
             val id = call.parameters["id"]
+            call.application.log.info("Request: GET /record $id")
             val record = id?.let { app.get(it) }
             if (record != null) {
+                call.application.log.info("Response: GET /record $id found $record")
                 call.respond(HttpStatusCode.OK, record)
             } else {
+                call.application.log.info("Response: GET /record $id not found")
                 call.respond(HttpStatusCode.NotFound)
             }
         }
         post {
+            call.application.log.info("Request: POST /record")
             val payload = call.receive<WebsiteRecordCreate>()
             val id = app.post(payload)
+            call.application.log.info("Response: POST /record $id")
             call.respond(HttpStatusCode.OK, id)
         }
         put {
+            call.application.log.info("Request: PUT /record")
             val payload = call.receive<WebsiteRecordUpdate>()
             val success = app.put(payload)
             val status = if (success) HttpStatusCode.OK else HttpStatusCode.BadRequest
+            call.application.log.info("Response: PUT /record $status")
             call.respond(status)
         }
         delete {
+            call.application.log.info("Request: DELETE /record")
             val payload = call.receive<WebsiteRecordDelete>()
             val success = app.delete(payload)
             val status = if (success) HttpStatusCode.OK else HttpStatusCode.BadRequest
+            call.application.log.info("Response: DELETE /record $status")
             call.respond(status)
         }
     }

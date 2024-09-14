@@ -4,6 +4,7 @@ import com.craw.schema.internal.Execution
 import com.craw.schema.internal.RecordState
 import com.craw.utility.TimeProvider
 import com.craw.utility.between
+import com.craw.utility.logger
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -27,14 +28,17 @@ class Executor(
         recordState: RecordState,
         reschedule: Boolean = false,
     ) {
+        logger.info("Scheduling record ${recordState.recordId}")
         val executionId = remove(recordState.recordId)
         if (executionId != null) {
+            logger.info("Removing old execution $executionId for record ${recordState.recordId}")
             repository.deleteExecution(executionId)
         }
 
         val now = timeProvider.now()
         val executeAt = if (reschedule) now + recordState.periodicity else now
 
+        logger.info("Scheduling new execution for ${recordState.recordId} at $executeAt")
         val execution =
             repository.createExecution(
                 recordId = recordState.recordId,
@@ -42,7 +46,7 @@ class Executor(
                 regexp = recordState.regexp,
                 start = executeAt,
             )
-
+        logger.info("Created execution ${execution.executionId} for record ${recordState.recordId}")
         addToQueue(executeAt, execution.executionId, recordState)
     }
 
@@ -79,9 +83,12 @@ class Executor(
                             queue.firstOrNull()
                                 ?: error("Executor queue is empty and until next event timed out")
 
+                        logger.info("Executing execution $executionId for record ${record.recordId}")
+
                         val execution = repository.startExecution(executionId)
                         send(execution.updateRecordState(record))
 
+                        logger.info("Starting crawl for execution $executionId")
                         crawler.crawl(
                             executionId = execution.executionId,
                             url = record.baseUrl,
@@ -89,6 +96,7 @@ class Executor(
                         )
                             .map { execution.copy(crawl = it) }
                             .collect { send(it.updateRecordState(record)) }
+                        logger.info("Crawl for execution $executionId finished")
 
                         val end = timeProvider.now()
                         val executionCompleted = repository.completeExecution(execution.executionId, end)
@@ -126,4 +134,8 @@ class Executor(
         val executionId: String,
         val recordState: RecordState,
     )
+
+    companion object {
+        private val logger = logger<Executor>()
+    }
 }

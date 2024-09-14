@@ -34,14 +34,15 @@ class Repository(private val translator: DatabaseTranslator, private val databas
     fun createRecord(record: RecordCreate): RecordState =
         transaction(database) {
             exposedLogger.info("Creating new record for url ${record.baseUrl}")
-            val new = RecordEntity.new {
-                url = record.baseUrl
-                regexp = record.regexp
-                periodicity = record.periodicity
-                label = record.label
-                tags = record.tags
-                active = record.active
-            }
+            val new =
+                RecordEntity.new {
+                    url = record.baseUrl
+                    regexp = record.regexp
+                    periodicity = record.periodicity
+                    label = record.label
+                    tags = record.tags
+                    active = record.active
+                }
 
             exposedLogger.info("Created new record $new")
             new
@@ -57,13 +58,14 @@ class Repository(private val translator: DatabaseTranslator, private val databas
             exposedLogger.info("Creating new execution for record $recordId")
             val record = findRecord(recordId) ?: error("Record $recordId not found while creating new execution")
 
-            val new = ExecutionEntity.new {
-                type = ExecutionType.PENDING
-                this.url = url
-                this.regexp = regexp
-                this.start = start.toJavaInstant()
-                this.record = record
-            }
+            val new =
+                ExecutionEntity.new {
+                    type = ExecutionType.PENDING
+                    this.url = url
+                    this.regexp = regexp
+                    this.start = start.toJavaInstant()
+                    this.record = record
+                }
 
             exposedLogger.info("Created new execution $new")
             new
@@ -115,14 +117,12 @@ class Repository(private val translator: DatabaseTranslator, private val databas
             records
         }.map { translator.translate(it) }
 
-    fun getRecord(recordId: String): RecordState? =
-        transaction(database) { findRecord(recordId) }?.let { translator.translate(it) }
+    fun getRecord(recordId: String): RecordState? = transaction(database) { findRecord(recordId) }?.let { translator.translate(it) }
 
     fun getExecution(executionId: String): Execution? =
         transaction(database) { findExecution(executionId) }?.let { translator.translate(it) }
 
-    fun getCrawl(crawlId: String): Crawl? =
-        transaction(database) { findCrawl(crawlId) }?.let { translator.translate(it) }
+    fun getCrawl(crawlId: String): Crawl? = transaction(database) { findCrawl(crawlId) }?.let { translator.translate(it) }
 
     fun updateRecord(record: RecordUpdate): RecordState? =
         transaction(database) {

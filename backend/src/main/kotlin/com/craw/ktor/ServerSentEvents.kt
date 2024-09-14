@@ -3,6 +3,7 @@ package com.craw.ktor
 import io.ktor.http.CacheControl
 import io.ktor.http.ContentType
 import io.ktor.server.application.call
+import io.ktor.server.application.log
 import io.ktor.server.response.cacheControl
 import io.ktor.server.response.header
 import io.ktor.server.response.respondTextWriter
@@ -29,8 +30,10 @@ object ServerSentEvents {
                     .onEach {
                         if (it.event != null) {
                             write("event: ${it.event}\n")
+                            call.application.log.info("event: ${it.event}")
                         }
                         write("data: ${it.data}\n")
+                        call.application.log.info("data: ${it.data}")
                         flush()
                     }
                     .flowOn(dispatcher).collect()
