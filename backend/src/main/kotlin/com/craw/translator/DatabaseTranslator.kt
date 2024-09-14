@@ -9,6 +9,7 @@ import com.craw.schema.internal.Crawl
 import com.craw.schema.internal.Execution
 import com.craw.schema.internal.RecordState
 import kotlinx.datetime.toKotlinInstant
+import kotlin.time.Duration
 
 class DatabaseTranslator {
     fun translate(record: RecordEntity): RecordState {
@@ -16,7 +17,7 @@ class DatabaseTranslator {
             recordId = record.id.value.toString(),
             baseUrl = record.url,
             regexp = record.regexp,
-            periodicity = record.periodicity,
+            periodicity = Duration.parseIsoString(record.periodicity),
             label = record.label,
             active = record.active,
             tags = record.tags,
@@ -66,7 +67,9 @@ class DatabaseTranslator {
                 Crawl.Running(
                     crawlId = crawl.id.value.toString(),
                     url = crawl.url,
-                    start = crawl.start?.toKotlinInstant() ?: error("Crawl ${crawl.id} is running but has no start time"),
+                    start =
+                        crawl.start?.toKotlinInstant()
+                            ?: error("Crawl ${crawl.id} is running but has no start time"),
                 )
 
             CrawlType.COMPLETED ->
@@ -74,7 +77,9 @@ class DatabaseTranslator {
                     crawlId = crawl.id.value.toString(),
                     url = crawl.url,
                     title = crawl.title,
-                    start = crawl.start?.toKotlinInstant() ?: error("Crawl ${crawl.id} is completed but has no start time"),
+                    start =
+                        crawl.start?.toKotlinInstant()
+                            ?: error("Crawl ${crawl.id} is completed but has no start time"),
                     end = crawl.end?.toKotlinInstant() ?: error("Crawl ${crawl.id} is completed but has no end time"),
                     crawls = crawl.children.map { translate(it) },
                 )

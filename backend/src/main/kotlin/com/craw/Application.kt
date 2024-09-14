@@ -44,7 +44,7 @@ fun main() {
     val executor = Executor(timeProvider = timeProvider, crawler = crawler, repository = repository)
 
     val graphQLApplication = GraphQLApplication(translator = graphQLTranslator, repository = repository)
-    val graphApplication = GraphApplication(translator = sseTranslator)
+    val graphApplication = GraphApplication(translator = sseTranslator, executor = executor)
     val recordApplication = RecordApplication(translator = restTranslator, repository = repository, executor = executor)
 
     val server =
@@ -52,7 +52,6 @@ fun main() {
             graphQLApplication = graphQLApplication,
             graphApplication = graphApplication,
             recordApplication = recordApplication,
-            executor = executor,
         )
 
     embeddedServer(

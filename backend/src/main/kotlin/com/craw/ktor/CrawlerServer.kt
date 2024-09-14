@@ -1,6 +1,5 @@
 package com.craw.ktor
 
-import com.craw.application.Executor
 import com.craw.application.GraphApplication
 import com.craw.application.GraphQLApplication
 import com.craw.application.RecordApplication
@@ -11,7 +10,6 @@ class CrawlerServer(
     private val graphQLApplication: GraphQLApplication,
     private val graphApplication: GraphApplication,
     private val recordApplication: RecordApplication,
-    private val executor: Executor,
 ) {
     fun Application.module() {
         routing {

@@ -125,26 +125,25 @@ class Repository(private val translator: DatabaseTranslator, private val databas
             CrawlEntity.findById(crawlId.toUUID())
         }?.let { translator.translate(it) }
 
-    fun updateRecord(record: RecordUpdate): Boolean =
+    fun updateRecord(record: RecordUpdate): RecordState? =
         transaction(database) {
-            val found =
-                RecordEntity.findByIdAndUpdate(record.recordId.toUUID()) {
-                    it.url = record.baseUrl
-                    it.regexp = record.regexp
-                    it.periodicity = record.periodicity
-                    it.label = record.label
-                    it.active = record.active
-                    it.tags = record.tags
-                }
-            found != null
-        }
+            RecordEntity.findByIdAndUpdate(record.recordId.toUUID()) {
+                it.url = record.baseUrl
+                it.regexp = record.regexp
+                it.periodicity = record.periodicity
+                it.label = record.label
+                it.active = record.active
+                it.tags = record.tags
+            }
+        }?.let { translator.translate(it) }
 
     fun startExecution(executionId: String): Execution.Running =
         transaction(database) {
             ExecutionEntity.findByIdAndUpdate(executionId.toUUID()) {
                 it.type = ExecutionType.RUNNING
             }
-        }?.let { translator.translate(it) as Execution.Running } ?: error("Execution $executionId not found while starting")
+        }?.let { translator.translate(it) as Execution.Running }
+            ?: error("Execution $executionId not found while starting")
 
     fun completeExecution(
         executionId: String,

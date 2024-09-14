@@ -26,7 +26,7 @@ class SseTranslator {
             regexp = regexp,
             label = label,
             active = active,
-            periodicity = periodicity,
+            periodicity = periodicity.toIsoString(),
             tags = tags,
         )
 

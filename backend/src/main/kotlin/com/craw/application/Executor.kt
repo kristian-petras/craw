@@ -1,6 +1,7 @@
 package com.craw.application
 
-import com.craw.schema.internal.ExecutionUpdate
+import com.craw.schema.internal.Execution
+import com.craw.schema.internal.RecordState
 import com.craw.utility.TimeProvider
 import com.craw.utility.between
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -23,30 +24,30 @@ class Executor(
     private val reschedule = Channel<Unit>(Channel.UNLIMITED)
 
     fun schedule(
-        schedule: ExecutionSchedule,
+        recordState: RecordState,
         reschedule: Boolean = false,
     ) {
-        val executionId = remove(schedule.recordId)
+        val executionId = remove(recordState.recordId)
         if (executionId != null) {
             repository.deleteExecution(executionId)
         }
 
         val now = timeProvider.now()
-        val executeAt = if (reschedule) now + schedule.periodicity else now
+        val executeAt = if (reschedule) now + recordState.periodicity else now
 
         val execution =
             repository.createExecution(
-                recordId = schedule.recordId,
-                url = schedule.url,
-                regexp = schedule.regexp.pattern,
+                recordId = recordState.recordId,
+                url = recordState.baseUrl,
+                regexp = recordState.regexp,
                 start = executeAt,
             )
 
-        addToQueue(executeAt, execution.executionId, schedule)
+        addToQueue(executeAt, execution.executionId, recordState)
     }
 
     fun remove(recordId: String): String? {
-        val execution = queue.find { it.schedule.recordId == recordId } ?: return null
+        val execution = queue.find { it.recordState.recordId == recordId } ?: return null
         reschedule.trySend(Unit)
         return execution.executionId
     }
@@ -54,9 +55,9 @@ class Executor(
     private fun addToQueue(
         executeAt: Instant,
         executionId: String,
-        schedule: ExecutionSchedule,
+        recordState: RecordState,
     ) {
-        val timedSchedule = TimedExecutionSchedule(executeAt, executionId, schedule)
+        val timedSchedule = TimedExecutionSchedule(executeAt, executionId, recordState)
         queue.add(timedSchedule)
         queue.sortBy { it.executeAt }
         reschedule.trySend(Unit)
@@ -68,37 +69,52 @@ class Executor(
      * Should be called only once.
      */
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun subscribe(): Flow<ExecutionUpdate> =
+    fun subscribe(): Flow<RecordState> =
         channelFlow {
             while (isActive) {
                 select {
                     reschedule.onReceive {} // restart the waiting in case something new was scheduled
                     onTimeout(untilNextEvent(timeProvider.now())) {
-                        val (_, executionId, schedule) =
+                        val (_, executionId, record) =
                             queue.firstOrNull()
                                 ?: error("Executor queue is empty and until next event timed out")
 
                         val execution = repository.startExecution(executionId)
-                        send(ExecutionUpdate(schedule.recordId, execution))
+                        send(execution.updateRecordState(record))
 
                         crawler.crawl(
                             executionId = execution.executionId,
-                            url = schedule.url,
-                            regex = schedule.regexp,
+                            url = record.baseUrl,
+                            regex = record.regexp.toRegex(),
                         )
                             .map { execution.copy(crawl = it) }
-                            .collect { send(ExecutionUpdate(schedule.recordId, it)) }
+                            .collect { send(it.updateRecordState(record)) }
 
                         val end = timeProvider.now()
                         val executionCompleted = repository.completeExecution(execution.executionId, end)
-                        send(ExecutionUpdate(schedule.recordId, executionCompleted))
+                        send(executionCompleted.updateRecordState(record))
 
                         // reschedule the next event
-                        schedule(schedule, true)
+                        schedule(record, true)
                     }
                 }
             }
         }
+
+    private fun Execution.updateRecordState(recordState: RecordState): RecordState {
+        val record =
+            repository.getRecord(recordState.recordId)
+                ?: error("Record ${recordState.recordId} while trying to update graph with execution $executionId")
+
+        val newExecutions =
+            if (record.executions.any { it.executionId == executionId }) {
+                record.executions.map { if (it.executionId == executionId) this else it }
+            } else {
+                record.executions + listOf(this)
+            }
+
+        return record.copy(executions = newExecutions)
+    }
 
     private fun untilNextEvent(now: Instant): Duration {
         val nextEvent = queue.firstOrNull()?.executeAt ?: return Duration.INFINITE
@@ -108,6 +124,6 @@ class Executor(
     private data class TimedExecutionSchedule(
         val executeAt: Instant,
         val executionId: String,
-        val schedule: ExecutionSchedule,
+        val recordState: RecordState,
     )
 }

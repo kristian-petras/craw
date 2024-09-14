@@ -16,7 +16,7 @@ class RestTranslator {
             recordId = record.recordId,
             url = record.baseUrl,
             regexp = record.regexp,
-            periodicity = record.periodicity,
+            periodicity = record.periodicity.toIsoString(),
             label = record.label,
             active = record.active,
             tags = record.tags,
