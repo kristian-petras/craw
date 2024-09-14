@@ -15,23 +15,23 @@ class RecordApplication(
     private val executor: Executor,
 ) {
     fun getAll(): List<WebsiteRecord> {
-        val records = repository.records()
+        val records = repository.getRecords()
         return records.map { translator.translate(it) }
     }
 
     fun get(id: String): WebsiteRecord? {
-        val record = repository.record(id) ?: return null
+        val record = repository.getRecord(id) ?: return null
         return translator.translate(record)
     }
 
     fun post(record: WebsiteRecordCreate): String {
         val newRecord = translator.translate(record)
-        val recordId = repository.create(newRecord)
+        val recordState = repository.createRecord(newRecord)
 
-        val schedule = newRecord.toSchedule(recordId)
+        val schedule = newRecord.toSchedule(recordState.recordId)
         executor.schedule(schedule)
 
-        return recordId
+        return recordState.recordId
     }
 
     fun put(record: WebsiteRecordUpdate): Boolean {
@@ -41,24 +41,24 @@ class RecordApplication(
         executor.remove(record.recordId)
         executor.schedule(schedule)
 
-        return repository.invalidate(updatedRecord)
+        return repository.updateRecord(updatedRecord)
     }
 
     fun delete(record: WebsiteRecordDelete): Boolean {
-        val delete = translator.translate(record)
-        return repository.delete(delete)
+        executor.remove(record.recordId)
+        return repository.deleteRecord(record.recordId)
     }
 
     private fun RecordCreate.toSchedule(id: String): ExecutionSchedule = ExecutionSchedule(
         recordId = id,
-        baseUrl = this.baseUrl,
+        url = this.baseUrl,
         regexp = this.regexp.toRegex(),
         periodicity = Duration.parse(this.periodicity),
     )
 
     private fun RecordUpdate.toSchedule(): ExecutionSchedule = ExecutionSchedule(
         recordId = this.recordId,
-        baseUrl = this.baseUrl,
+        url = this.baseUrl,
         regexp = this.regexp.toRegex(),
         periodicity = Duration.parse(this.periodicity),
     )

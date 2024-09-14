@@ -8,13 +8,13 @@ import com.expediagroup.graphql.generator.scalars.ID
 
 class GraphQLApplication(private val translator: GraphQLTranslator, private val repository: Repository) : Query {
     override fun websites(): List<WebPage> {
-        val records = repository.records()
+        val records = repository.getRecords()
         return records.map { record -> translator.translate(record) }
     }
 
     override fun nodes(webPages: List<ID>): List<Node> {
         val ids = webPages.map { it.value }.toSet()
-        val records = repository.records()
+        val records = repository.getRecords()
         return records
             .filter { record -> record.recordId in ids }
             .flatMap { record ->
