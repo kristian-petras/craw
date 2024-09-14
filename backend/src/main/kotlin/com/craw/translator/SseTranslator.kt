@@ -44,43 +44,15 @@ class SseTranslator {
             end = null
         )
 
-        is Execution.Scheduled -> GraphExecution(
-            type = GraphExecutionType.SCHEDULED,
+        is Execution.Pending -> GraphExecution(
+            type = GraphExecutionType.PENDING,
             executionId = executionId,
             start = start,
             end = null
         )
-
-        is Execution.Removed -> GraphExecution(
-            type = GraphExecutionType.COMPLETED,
-            executionId = executionId,
-            start = start,
-            end = end
-        )
     }
 
-    private fun Execution.toGraphNode(): GraphNode = when (this) {
-        is Execution.Completed -> crawl.toGraphNode()
-        is Execution.Running -> crawl.toGraphNode()
-
-        is Execution.Scheduled -> GraphNode(
-            type = GraphNodeType.PENDING,
-            url = baseUrl,
-            title = null,
-            start = start,
-            end = null,
-            nodes = emptyList()
-        )
-
-        is Execution.Removed -> GraphNode(
-            type = GraphNodeType.INVALID,
-            url = baseUrl,
-            title = null,
-            start = start,
-            end = end,
-            nodes = emptyList()
-        )
-    }
+    private fun Execution.toGraphNode(): GraphNode = crawl.toGraphNode()
 
     private fun Crawl.toGraphNode(): GraphNode = when (this) {
         is Crawl.Completed -> GraphNode(
