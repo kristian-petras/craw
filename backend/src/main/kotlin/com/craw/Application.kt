@@ -1,12 +1,7 @@
 package com.craw
 
+import com.craw.application.*
 import com.craw.utility.DatabaseFactory
-import com.craw.application.Crawler
-import com.craw.application.Executor
-import com.craw.application.GraphApplication
-import com.craw.application.GraphQLApplication
-import com.craw.application.RecordApplication
-import com.craw.application.Repository
 import com.craw.ktor.CrawlerServer
 import com.craw.translator.DatabaseTranslator
 import com.craw.translator.GraphQLTranslator
@@ -31,11 +26,13 @@ fun main() {
     val repository = Repository(translator = databaseTranslator, database = database)
 
     val timeProvider = TimeProvider { Clock.System.now() }
+    val parser = Parser()
     val crawler = Crawler(
         timeProvider = timeProvider,
         repository = repository,
         client = HttpClient(),
-        dispatcher = Dispatchers.IO
+        parser = parser,
+        dispatcher = Dispatchers.IO,
     )
     val executor = Executor(timeProvider = timeProvider, crawler = crawler, repository = repository)
 
