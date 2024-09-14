@@ -2,7 +2,6 @@ package com.craw.application
 
 import com.craw.schema.rest.WebsiteRecord
 import com.craw.schema.rest.WebsiteRecordCreate
-import com.craw.schema.rest.WebsiteRecordDelete
 import com.craw.schema.rest.WebsiteRecordUpdate
 import com.craw.translator.RestTranslator
 
@@ -16,8 +15,8 @@ class RecordApplication(
         return records.map { translator.translate(it) }
     }
 
-    fun get(id: String): WebsiteRecord? {
-        val record = repository.getRecord(id) ?: return null
+    fun get(recordId: String): WebsiteRecord? {
+        val record = repository.getRecord(recordId) ?: return null
         return translator.translate(record)
     }
 
@@ -39,8 +38,8 @@ class RecordApplication(
         return true
     }
 
-    fun delete(record: WebsiteRecordDelete): Boolean {
-        executor.remove(record.recordId)
-        return repository.deleteRecord(record.recordId)
+    fun delete(recordId: String): Boolean {
+        executor.remove(recordId)
+        return repository.deleteRecord(recordId)
     }
 }

@@ -127,7 +127,8 @@ class Repository(private val translator: DatabaseTranslator, private val databas
     fun updateRecord(record: RecordUpdate): RecordState? =
         transaction(database) {
             exposedLogger.info("Updating record ${record.recordId}")
-            RecordEntity.findByIdAndUpdate(record.recordId.toUUID()) {
+            val uuid = record.recordId.toUUID() ?: return@transaction null
+            RecordEntity.findByIdAndUpdate(uuid) {
                 it.url = record.baseUrl
                 it.regexp = record.regexp
                 it.periodicity = record.periodicity
@@ -140,7 +141,8 @@ class Repository(private val translator: DatabaseTranslator, private val databas
     fun startExecution(executionId: String): Execution.Running =
         transaction(database) {
             exposedLogger.info("Starting execution $executionId")
-            ExecutionEntity.findByIdAndUpdate(executionId.toUUID()) {
+            val uuid = executionId.toUUID() ?: return@transaction null
+            ExecutionEntity.findByIdAndUpdate(uuid) {
                 it.type = ExecutionType.RUNNING
             }.also { exposedLogger.info("Started execution $it") }
         }?.let { translator.translate(it) as Execution.Running }
@@ -152,7 +154,8 @@ class Repository(private val translator: DatabaseTranslator, private val databas
     ): Execution.Completed =
         transaction(database) {
             exposedLogger.info("Completing execution $executionId")
-            ExecutionEntity.findByIdAndUpdate(executionId.toUUID()) {
+            val uuid = executionId.toUUID() ?: return@transaction null
+            ExecutionEntity.findByIdAndUpdate(uuid) {
                 it.type = ExecutionType.COMPLETED
                 it.end = end.toJavaInstant()
             }.also { exposedLogger.info("Completed execution $it") }
@@ -165,7 +168,8 @@ class Repository(private val translator: DatabaseTranslator, private val databas
     ): Crawl.Invalid =
         transaction(database) {
             exposedLogger.info("Invalidating crawl $crawlId")
-            CrawlEntity.findByIdAndUpdate(crawlId.toUUID()) {
+            val uuid = crawlId.toUUID() ?: return@transaction null
+            CrawlEntity.findByIdAndUpdate(uuid) {
                 it.type = CrawlType.INVALID
                 it.error = error
             }.also { exposedLogger.info("Invalidated crawl $it") }
@@ -177,7 +181,8 @@ class Repository(private val translator: DatabaseTranslator, private val databas
     ): Crawl.Running =
         transaction(database) {
             exposedLogger.info("Starting crawl $crawlId")
-            CrawlEntity.findByIdAndUpdate(crawlId.toUUID()) {
+            val uuid = crawlId.toUUID() ?: return@transaction null
+            CrawlEntity.findByIdAndUpdate(uuid) {
                 it.type = CrawlType.RUNNING
                 it.start = start.toJavaInstant()
             }.also { exposedLogger.info("Started crawl $it") }
@@ -190,7 +195,8 @@ class Repository(private val translator: DatabaseTranslator, private val databas
     ): Crawl.Completed =
         transaction(database) {
             exposedLogger.info("Completing crawl $crawlId")
-            CrawlEntity.findByIdAndUpdate(crawlId.toUUID()) {
+            val uuid = crawlId.toUUID() ?: return@transaction null
+            CrawlEntity.findByIdAndUpdate(uuid) {
                 it.type = CrawlType.COMPLETED
                 it.end = end.toJavaInstant()
                 it.title = title
@@ -230,7 +236,8 @@ class Repository(private val translator: DatabaseTranslator, private val databas
         }
 
     private fun findRecord(id: String): RecordEntity? {
-        val record = RecordEntity.findById(id.toUUID())
+        val uuid = id.toUUID() ?: return null
+        val record = RecordEntity.findById(uuid)
         if (record == null) {
             exposedLogger.warn("Record $id not found")
         } else {
@@ -240,7 +247,8 @@ class Repository(private val translator: DatabaseTranslator, private val databas
     }
 
     private fun findExecution(id: String): ExecutionEntity? {
-        val execution = ExecutionEntity.findById(id.toUUID())
+        val uuid = id.toUUID() ?: return null
+        val execution = ExecutionEntity.findById(uuid)
         if (execution == null) {
             exposedLogger.warn("Execution $id not found")
         } else {
@@ -250,7 +258,8 @@ class Repository(private val translator: DatabaseTranslator, private val databas
     }
 
     private fun findCrawl(id: String): CrawlEntity? {
-        val crawl = CrawlEntity.findById(id.toUUID())
+        val uuid = id.toUUID() ?: return null
+        val crawl = CrawlEntity.findById(uuid)
         if (crawl == null) {
             exposedLogger.warn("Crawl $id not found")
         } else {
@@ -259,5 +268,11 @@ class Repository(private val translator: DatabaseTranslator, private val databas
         return crawl
     }
 
-    private fun String.toUUID(): UUID = UUID.fromString(this)
+    private fun String.toUUID(): UUID? {
+        val uuid = runCatching { UUID.fromString(this) }.getOrNull()
+        if (uuid == null) {
+            exposedLogger.warn("Invalid UUID $this")
+        }
+        return uuid
+    }
 }

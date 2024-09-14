@@ -6,7 +6,6 @@ import com.craw.application.RecordApplication
 import com.craw.ktor.ServerSentEvents.ServerSentEvent
 import com.craw.ktor.ServerSentEvents.sse
 import com.craw.schema.rest.WebsiteRecordCreate
-import com.craw.schema.rest.WebsiteRecordDelete
 import com.craw.schema.rest.WebsiteRecordUpdate
 import com.expediagroup.graphql.server.ktor.GraphQL
 import com.expediagroup.graphql.server.ktor.graphQLGetRoute
@@ -73,7 +72,7 @@ private fun Route.restRoutes(app: RecordApplication) {
         }
     }
     route("/record") {
-        get {
+        get("{id}") {
             val id = call.parameters["id"]
             call.application.log.info("Request: GET /record $id")
             val record = id?.let { app.get(it) }
@@ -100,10 +99,10 @@ private fun Route.restRoutes(app: RecordApplication) {
             call.application.log.info("Response: PUT /record $status")
             call.respond(status)
         }
-        delete {
-            call.application.log.info("Request: DELETE /record")
-            val payload = call.receive<WebsiteRecordDelete>()
-            val success = app.delete(payload)
+        delete("{id}") {
+            val id = call.parameters["id"] ?: return@delete call.respond(HttpStatusCode.BadRequest)
+            call.application.log.info("Request: DELETE /record $id")
+            val success = app.delete(id)
             val status = if (success) HttpStatusCode.OK else HttpStatusCode.BadRequest
             call.application.log.info("Response: DELETE /record $status")
             call.respond(status)

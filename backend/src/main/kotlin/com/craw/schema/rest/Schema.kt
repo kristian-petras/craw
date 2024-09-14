@@ -4,9 +4,6 @@ import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class WebsiteRecords(val records: List<WebsiteRecord>)
-
-@Serializable
 data class WebsiteRecord(
     val recordId: String,
     val url: String,
@@ -44,9 +41,6 @@ data class WebsiteRecordUpdate(
     val active: Boolean,
     val tags: List<String>,
 )
-
-@Serializable
-data class WebsiteRecordDelete(val recordId: String)
 
 /**
  * Execution is a result of crawling the website.

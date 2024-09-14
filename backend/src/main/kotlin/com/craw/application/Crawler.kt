@@ -122,6 +122,7 @@ class Crawler(
         url: String,
         regex: Regex,
     ): ParseResult {
+        // TODO: robots.txt handling
         val payload = client.get(url)
         if (payload.status.isSuccess()) {
             logger.info("Fetched $url with status ${payload.status}")
