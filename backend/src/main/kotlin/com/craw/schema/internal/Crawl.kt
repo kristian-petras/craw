@@ -33,5 +33,6 @@ sealed interface Crawl {
     data class Invalid(
         override val crawlId: String,
         override val url: String,
+        val error: String,
     ) : Crawl
 }

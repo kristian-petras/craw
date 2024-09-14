@@ -4,35 +4,34 @@ import kotlinx.datetime.Instant
 
 sealed interface Execution {
     val executionId: String
+    val regexp: String
+    val crawl: Crawl
 
-    data class Scheduled(
+    data class Pending(
         override val executionId: String,
-        val baseUrl: String,
-        val regexp: String,
+        override val regexp: String,
+        override val crawl: Crawl.Pending,
         val start: Instant,
-    ) : Execution
+    ) : Execution {
+        val url = crawl.url
+    }
 
     data class Running(
         override val executionId: String,
-        val baseUrl: String,
-        val regexp: String,
-        val start: Instant,
-        val crawl: Crawl,
-    ) : Execution
+        override val regexp: String,
+        override val crawl: Crawl,
+        val start: Instant
+    ) : Execution {
+        val url = crawl.url
+    }
 
     data class Completed(
         override val executionId: String,
-        val baseUrl: String,
-        val regexp: String,
-        val start: Instant,
-        val end: Instant,
-        val crawl: Crawl.Completed,
-    ) : Execution
-
-    data class Removed(
-        override val executionId: String,
-        val baseUrl: String,
-        val start: Instant,
-        val end: Instant,
-    ) : Execution
+        override val regexp: String,
+        override val crawl: Crawl.Completed,
+    ) : Execution {
+        val start = crawl.start
+        val end = crawl.end
+        val url = crawl.url
+    }
 }
