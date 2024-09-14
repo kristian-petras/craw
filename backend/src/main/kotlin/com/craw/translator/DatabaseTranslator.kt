@@ -24,54 +24,27 @@ class DatabaseTranslator {
         )
     }
 
-    // TODO remove
-    /**
-     * Translate completed execution
-     */
-    fun translate(execution: ExecutionEntity, crawl: CrawlEntity): Execution.Completed = Execution.Completed(
-        executionId = execution.id.value.toString(),
-        baseUrl = execution.record.url,
-        regexp = execution.record.regexp,
-        start = execution.start.toKotlinInstant(),
-        end = execution.end?.toKotlinInstant()
-            ?: error("Execution ${execution.id} is completed but has no end time"),
-        crawl = translate(crawl) as Crawl.Completed
-    )
-
     fun translate(execution: ExecutionEntity): Execution = when (execution.type) {
         ExecutionType.COMPLETED -> Execution.Completed(
             executionId = execution.id.value.toString(),
-            baseUrl = execution.record.url,
             regexp = execution.record.regexp,
-            start = execution.start.toKotlinInstant(),
-            end = execution.end?.toKotlinInstant()
-                ?: error("Execution ${execution.id} is completed but has no end time"),
-            crawl = execution.rootCrawl?.let { translate(it) as? Crawl.Completed }
+            crawl = translate(execution.rootCrawl) as? Crawl.Completed
                 ?: error("Execution ${execution.id} is should have a single completed root crawl but does not")
         )
 
         ExecutionType.RUNNING -> Execution.Running(
             executionId = execution.id.value.toString(),
             start = execution.start.toKotlinInstant(),
-            baseUrl = execution.record.url,
             regexp = execution.record.regexp,
-            crawl = execution.rootCrawl?.let { translate(it) }
-                ?: error("Execution ${execution.id} is should have a single root crawl but does not")
+            crawl = translate(execution.rootCrawl)
         )
 
-        ExecutionType.SCHEDULED -> Execution.Scheduled(
+        ExecutionType.PENDING -> Execution.Pending(
             executionId = execution.id.value.toString(),
             start = execution.start.toKotlinInstant(),
-            baseUrl = execution.record.url,
-            regexp = execution.record.regexp
-        )
-
-        ExecutionType.INVALID -> Execution.Removed(
-            executionId = execution.id.value.toString(),
-            start = execution.start.toKotlinInstant(),
-            end = execution.end?.toKotlinInstant()
-                ?: error("Execution ${execution.id} is invalid but has no end time"),
-            baseUrl = execution.record.url
+            regexp = execution.record.regexp,
+            crawl = translate(execution.rootCrawl) as? Crawl.Pending
+                ?: error("Execution ${execution.id} is pending but does not have a pending root crawl")
         )
     }
 
@@ -99,6 +72,7 @@ class DatabaseTranslator {
         CrawlType.INVALID -> Crawl.Invalid(
             crawlId = crawl.id.value.toString(),
             url = crawl.url,
+            error = crawl.error ?: error("Crawl ${crawl.id} is invalid but has no error message")
         )
     }
 }
