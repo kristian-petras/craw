@@ -7,7 +7,7 @@ import com.craw.application.GraphQLApplication
 import com.craw.application.Parser
 import com.craw.application.RecordApplication
 import com.craw.application.Repository
-import com.craw.ktor.CrawlerServer
+import com.craw.ktor.module
 import com.craw.translator.DatabaseTranslator
 import com.craw.translator.GraphQLTranslator
 import com.craw.translator.RestTranslator
@@ -47,17 +47,10 @@ fun main() {
     val graphApplication = GraphApplication(translator = sseTranslator, executor = executor)
     val recordApplication = RecordApplication(translator = restTranslator, repository = repository, executor = executor)
 
-    val server =
-        CrawlerServer(
-            graphQLApplication = graphQLApplication,
-            graphApplication = graphApplication,
-            recordApplication = recordApplication,
-        )
-
     embeddedServer(
         factory = CIO,
         port = 8080,
         host = "0.0.0.0",
-        module = { with(server) { module() } },
+        module = { module(graphQLApplication, graphApplication, recordApplication) },
     ).start(wait = true)
 }
