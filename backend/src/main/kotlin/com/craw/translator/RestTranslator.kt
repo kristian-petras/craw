@@ -33,10 +33,6 @@ class RestTranslator {
         tags = recordCreate.tags
     )
 
-    fun translate(recordDelete: WebsiteRecordDelete): RecordDelete = RecordDelete(
-        recordId = recordDelete.recordId
-    )
-
     fun translate(recordUpdate: WebsiteRecordUpdate): RecordUpdate = RecordUpdate(
         recordId = recordUpdate.recordId,
         baseUrl = recordUpdate.url,
@@ -49,7 +45,7 @@ class RestTranslator {
 
     private fun translate(execution: Execution): WebsiteExecution = when (execution) {
         is Execution.Completed -> WebsiteExecution(
-            url = execution.baseUrl,
+            url = execution.url,
             start = execution.start,
             end = execution.end,
             title = execution.crawl.toTitle(),
@@ -57,25 +53,17 @@ class RestTranslator {
         )
 
         is Execution.Running -> WebsiteExecution(
-            url = execution.baseUrl,
+            url = execution.url,
             start = execution.start,
             end = null,
             title = execution.crawl.toTitle(),
             links = execution.crawl.toLinks()
         )
 
-        is Execution.Scheduled -> WebsiteExecution(
-            url = execution.baseUrl,
+        is Execution.Pending -> WebsiteExecution(
+            url = execution.url,
             start = execution.start,
             end = null,
-            title = null,
-            links = emptyList()
-        )
-
-        is Execution.Removed -> WebsiteExecution(
-            url = execution.baseUrl,
-            start = execution.start,
-            end = execution.end,
             title = null,
             links = emptyList()
         )
