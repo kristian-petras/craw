@@ -1,7 +1,7 @@
 package com.craw.schema.internal
 
-import kotlinx.datetime.Instant
 import com.craw.utility.between
+import kotlinx.datetime.Instant
 import kotlin.time.Duration
 
 sealed interface Crawl {

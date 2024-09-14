@@ -14,7 +14,7 @@ object GraphQLModule {
     fun Route.routes() {
         graphQLGetRoute()
         graphQLPostRoute()
-        //graphQLSubscriptionsRoute()
+        // graphQLSubscriptionsRoute()
         graphiQLRoute()
         graphQLSDLRoute()
     }
@@ -28,4 +28,3 @@ object GraphQLModule {
         }
     }
 }
-

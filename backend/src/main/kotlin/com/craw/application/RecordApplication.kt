@@ -49,17 +49,19 @@ class RecordApplication(
         return repository.deleteRecord(record.recordId)
     }
 
-    private fun RecordCreate.toSchedule(id: String): ExecutionSchedule = ExecutionSchedule(
-        recordId = id,
-        url = this.baseUrl,
-        regexp = this.regexp.toRegex(),
-        periodicity = Duration.parse(this.periodicity),
-    )
+    private fun RecordCreate.toSchedule(id: String): ExecutionSchedule =
+        ExecutionSchedule(
+            recordId = id,
+            url = this.baseUrl,
+            regexp = this.regexp.toRegex(),
+            periodicity = Duration.parse(this.periodicity),
+        )
 
-    private fun RecordUpdate.toSchedule(): ExecutionSchedule = ExecutionSchedule(
-        recordId = this.recordId,
-        url = this.baseUrl,
-        regexp = this.regexp.toRegex(),
-        periodicity = Duration.parse(this.periodicity),
-    )
+    private fun RecordUpdate.toSchedule(): ExecutionSchedule =
+        ExecutionSchedule(
+            recordId = this.recordId,
+            url = this.baseUrl,
+            regexp = this.regexp.toRegex(),
+            periodicity = Duration.parse(this.periodicity),
+        )
 }

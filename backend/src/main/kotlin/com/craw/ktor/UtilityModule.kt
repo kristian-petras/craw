@@ -8,9 +8,10 @@ import io.ktor.server.plugins.cors.routing.CORS
 import kotlinx.serialization.json.Json
 
 object UtilityModule {
-    val json = Json {
-        prettyPrint = true
-    }
+    val json =
+        Json {
+            prettyPrint = true
+        }
 
     fun Application.install() {
         install(ContentNegotiation) {

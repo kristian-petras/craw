@@ -19,7 +19,7 @@ data class GraphRootNode(
 enum class GraphExecutionType {
     PENDING,
     RUNNING,
-    COMPLETED
+    COMPLETED,
 }
 
 @Serializable

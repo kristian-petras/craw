@@ -42,7 +42,6 @@ dependencies {
     implementation("io.ktor:ktor-server-html-builder-jvm")
     implementation("io.ktor:ktor-server-swagger")
 
-
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
 
     testImplementation(kotlin("test"))
@@ -64,7 +63,6 @@ dependencies {
     implementation("org.postgresql:postgresql:42.7.4")
 
     implementation("io.github.cdimascio:dotenv-kotlin:6.4.2")
-
 }
 
 kotlin {

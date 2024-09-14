@@ -5,6 +5,7 @@ import com.expediagroup.graphql.server.operations.Query
 
 interface Query : Query {
     fun websites(): List<WebPage>
+
     fun nodes(webPages: List<ID>): List<Node>
 }
 

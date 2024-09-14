@@ -8,14 +8,15 @@ object DatabaseFactory {
             url = "jdbc:h2:mem:test",
             user = "root",
             driver = "org.h2.Driver",
-            password = ""
+            password = "",
         )
     }
 
-    fun postgres(password: String): Database = Database.connect(
-        url = "jdbc:postgresql://localhost:5432/postgres",
-        user = "postgres",
-        password = password,
-        driver = "org.postgresql.Driver"
-    )
+    fun postgres(password: String): Database =
+        Database.connect(
+            url = "jdbc:postgresql://localhost:5432/postgres",
+            user = "postgres",
+            password = password,
+            driver = "org.postgresql.Driver",
+        )
 }

@@ -23,4 +23,3 @@ class GraphQLApplication(private val translator: GraphQLTranslator, private val 
             }
     }
 }
-

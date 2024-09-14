@@ -20,7 +20,7 @@ sealed interface Execution {
         override val executionId: String,
         override val regexp: String,
         override val crawl: Crawl,
-        val start: Instant
+        val start: Instant,
     ) : Execution {
         val url = crawl.url
     }

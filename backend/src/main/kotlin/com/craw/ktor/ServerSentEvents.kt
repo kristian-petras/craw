@@ -43,5 +43,3 @@ object ServerSentEvents {
         val data: String,
     )
 }
-
-

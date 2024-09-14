@@ -10,4 +10,3 @@ data class RecordState(
     val tags: List<String>,
     val executions: List<Execution>,
 )
-

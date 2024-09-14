@@ -3,7 +3,10 @@ package com.craw.application
 import org.jsoup.Jsoup
 
 class Parser {
-    fun parse(payload: String, regex: Regex): ParseResult {
+    fun parse(
+        payload: String,
+        regex: Regex,
+    ): ParseResult {
         try {
             val document = Jsoup.parse(payload)
             val title = document.title()
@@ -17,6 +20,7 @@ class Parser {
 
     sealed interface ParseResult {
         data class Success(val title: String?, val matches: List<String>, val rest: List<String>) : ParseResult
+
         data class Failure(val status: Int, val message: String) : ParseResult
     }
 }

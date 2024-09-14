@@ -9,7 +9,6 @@ import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.javatime.timestamp
 import java.util.UUID
 
-
 object RecordsTable : UUIDTable() {
     val url = varchar("url", 255)
     val regexp = varchar("regexp", 255)
@@ -40,7 +39,7 @@ enum class CrawlType {
     PENDING,
     RUNNING,
     COMPLETED,
-    INVALID
+    INVALID,
 }
 
 object CrawlsTable : UUIDTable() {
@@ -94,5 +93,4 @@ class ExecutionEntity(id: EntityID<UUID>) : UUIDEntity(id) {
     var record by RecordEntity referencedOn ExecutionsTable.record
     var rootCrawl by CrawlEntity referencedOn ExecutionsTable.rootCrawl
     val crawls by CrawlEntity referrersOn CrawlsTable.execution
-
 }
