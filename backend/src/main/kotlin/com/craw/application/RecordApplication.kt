@@ -20,20 +20,25 @@ class RecordApplication(
         return translator.translate(record)
     }
 
-    fun post(record: WebsiteRecordCreate): String {
+    fun post(record: WebsiteRecordCreate): String? {
         val newRecord = translator.translate(record)
-        val recordState = repository.createRecord(newRecord)
+        val recordState = repository.createRecord(newRecord) ?: return null
 
-        executor.schedule(recordState)
+        if (recordState.active) {
+            executor.schedule(recordState)
+        }
 
         return recordState.recordId
     }
 
     fun put(record: WebsiteRecordUpdate): Boolean {
-        val updatedRecord = translator.translate(record)
+        val oldRecord = repository.getRecord(record.recordId) ?: return false
+        val updatedRecord = translator.translate(oldRecord, record)
         val recordState = repository.updateRecord(updatedRecord) ?: return false
 
-        executor.schedule(recordState)
+        if (recordState.active) {
+            executor.schedule(recordState)
+        }
 
         return true
     }

@@ -14,7 +14,7 @@ class RestTranslator {
     fun translate(record: RecordState): WebsiteRecord =
         WebsiteRecord(
             recordId = record.recordId,
-            url = record.baseUrl,
+            url = record.url,
             regexp = record.regexp,
             periodicity = record.periodicity.toIsoString(),
             label = record.label,
@@ -33,22 +33,25 @@ class RestTranslator {
             tags = recordCreate.tags,
         )
 
-    fun translate(recordUpdate: WebsiteRecordUpdate): RecordUpdate =
+    fun translate(
+        oldRecord: RecordState,
+        recordUpdate: WebsiteRecordUpdate,
+    ): RecordUpdate =
         RecordUpdate(
             recordId = recordUpdate.recordId,
-            baseUrl = recordUpdate.url,
-            regexp = recordUpdate.regexp,
-            periodicity = recordUpdate.periodicity,
-            label = recordUpdate.label,
-            active = recordUpdate.active,
-            tags = recordUpdate.tags,
+            baseUrl = recordUpdate.url ?: oldRecord.url,
+            regexp = recordUpdate.regexp ?: oldRecord.regexp,
+            periodicity = recordUpdate.periodicity ?: oldRecord.periodicity.toIsoString(),
+            label = recordUpdate.label ?: oldRecord.label,
+            active = recordUpdate.active ?: oldRecord.active,
+            tags = recordUpdate.tags ?: oldRecord.tags,
         )
 
     private fun translate(execution: Execution): WebsiteExecution =
         when (execution) {
             is Execution.Completed ->
                 WebsiteExecution(
-                    url = execution.url,
+                    url = execution.url.toString(),
                     start = execution.start,
                     end = execution.end,
                     title = execution.crawl.toTitle(),
@@ -57,7 +60,7 @@ class RestTranslator {
 
             is Execution.Running ->
                 WebsiteExecution(
-                    url = execution.url,
+                    url = execution.url.toString(),
                     start = execution.start,
                     end = null,
                     title = execution.crawl.toTitle(),
@@ -66,7 +69,7 @@ class RestTranslator {
 
             is Execution.Pending ->
                 WebsiteExecution(
-                    url = execution.url,
+                    url = execution.url.toString(),
                     start = execution.start,
                     end = null,
                     title = null,
@@ -82,7 +85,7 @@ class RestTranslator {
 
     private fun Crawl.toLinks(): List<String> =
         when (this) {
-            is Crawl.Completed -> listOf(url) + crawls.flatMap { it.toLinks() }
+            is Crawl.Completed -> listOf(url.toString()) + crawls.flatMap { it.toLinks() }
             is Crawl.Running, is Crawl.Pending, is Crawl.Invalid -> emptyList()
         }
 }

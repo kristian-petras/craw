@@ -12,7 +12,7 @@ class GraphQLTranslator {
         WebPage(
             identifier = ID(record.recordId),
             label = record.label,
-            url = record.baseUrl,
+            url = record.url,
             regexp = record.regexp,
             tags = record.tags,
             active = record.active,
@@ -31,16 +31,25 @@ class GraphQLTranslator {
             is Crawl.Completed ->
                 Node(
                     title = crawl.title,
-                    url = crawl.url,
+                    url = crawl.url.toString(),
                     crawlTime = crawl.crawlTime.toString(),
                     links = crawl.crawls.map { translate(owner, it) },
                     owner = owner,
                 )
 
-            is Crawl.Running, is Crawl.Pending, is Crawl.Invalid ->
+            is Crawl.Invalid ->
                 Node(
                     title = null,
-                    url = crawl.url,
+                    url = crawl.url.toString(),
+                    crawlTime = crawl.crawlTime.toString(),
+                    links = emptyList(),
+                    owner = owner,
+                )
+
+            is Crawl.Running, is Crawl.Pending ->
+                Node(
+                    title = null,
+                    url = crawl.url.toString(),
                     crawlTime = null,
                     links = emptyList(),
                     owner = owner,

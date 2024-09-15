@@ -50,6 +50,7 @@ object CrawlsTable : UUIDTable() {
     val type = enumerationByName<CrawlType>("type", 255)
     val error = varchar("error", 255).nullable().default(null)
     val execution = reference("execution", ExecutionsTable)
+    val root = bool("root").default(false)
 }
 
 class CrawlEntity(id: EntityID<UUID>) : UUIDEntity(id) {
@@ -64,6 +65,9 @@ class CrawlEntity(id: EntityID<UUID>) : UUIDEntity(id) {
     var execution by ExecutionEntity referencedOn CrawlsTable.execution
     var parent by CrawlEntity.via(CrawlRelationsTable.child, CrawlRelationsTable.parent)
     var children by CrawlEntity.via(CrawlRelationsTable.parent, CrawlRelationsTable.child)
+
+    val root: Boolean
+        get() = parent.empty()
 }
 
 enum class ExecutionType {
@@ -79,7 +83,6 @@ object ExecutionsTable : UUIDTable() {
     val end = timestamp("end").nullable().default(null)
     val type = enumerationByName<ExecutionType>("type", 255)
     val record = reference("record", RecordsTable)
-    val rootCrawl = reference("root_crawl", CrawlsTable)
 }
 
 class ExecutionEntity(id: EntityID<UUID>) : UUIDEntity(id) {
@@ -91,6 +94,5 @@ class ExecutionEntity(id: EntityID<UUID>) : UUIDEntity(id) {
     var end by ExecutionsTable.end
     var type by ExecutionsTable.type
     var record by RecordEntity referencedOn ExecutionsTable.record
-    var rootCrawl by CrawlEntity referencedOn ExecutionsTable.rootCrawl
     val crawls by CrawlEntity referrersOn CrawlsTable.execution
 }

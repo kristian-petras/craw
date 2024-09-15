@@ -64,7 +64,7 @@ class SseTranslator {
             is Crawl.Completed ->
                 GraphNode(
                     type = GraphNodeType.COMPLETED,
-                    url = url,
+                    url = url.toString(),
                     title = title,
                     start = start,
                     end = end,
@@ -74,7 +74,7 @@ class SseTranslator {
             is Crawl.Invalid ->
                 GraphNode(
                     type = GraphNodeType.INVALID,
-                    url = url,
+                    url = url.toString(),
                     title = null,
                     start = null,
                     end = null,
@@ -84,7 +84,7 @@ class SseTranslator {
             is Crawl.Pending ->
                 GraphNode(
                     type = GraphNodeType.PENDING,
-                    url = url,
+                    url = url.toString(),
                     title = null,
                     start = null,
                     end = null,
@@ -94,7 +94,7 @@ class SseTranslator {
             is Crawl.Running ->
                 GraphNode(
                     type = GraphNodeType.RUNNING,
-                    url = url,
+                    url = url.toString(),
                     title = null,
                     start = start,
                     end = null,

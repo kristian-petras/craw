@@ -86,15 +86,30 @@ private fun Route.restRoutes(app: RecordApplication) {
         }
         post {
             call.application.log.info("Request: POST /record")
-            val payload = call.receive<WebsiteRecordCreate>()
-            val id = app.post(payload)
+            val payload = runCatching { call.receive<WebsiteRecordCreate>() }
+            if (payload.isFailure) {
+                call.application.log.info("Response: POST /record ${HttpStatusCode.BadRequest}")
+                call.respond(HttpStatusCode.BadRequest)
+                return@post
+            }
+            val id = app.post(payload.getOrThrow())
+            if (id == null) {
+                call.application.log.info("Response: POST /record ${HttpStatusCode.BadRequest}")
+                call.respond(HttpStatusCode.BadRequest)
+                return@post
+            }
             call.application.log.info("Response: POST /record $id")
             call.respond(HttpStatusCode.OK, id)
         }
         put {
             call.application.log.info("Request: PUT /record")
-            val payload = call.receive<WebsiteRecordUpdate>()
-            val success = app.put(payload)
+            val payload = runCatching { call.receive<WebsiteRecordUpdate>() }
+            if (payload.isFailure) {
+                call.application.log.info("Response: PUT /record ${HttpStatusCode.BadRequest}")
+                call.respond(HttpStatusCode.BadRequest)
+                return@put
+            }
+            val success = app.put(payload.getOrThrow())
             val status = if (success) HttpStatusCode.OK else HttpStatusCode.BadRequest
             call.application.log.info("Response: PUT /record $status")
             call.respond(status)

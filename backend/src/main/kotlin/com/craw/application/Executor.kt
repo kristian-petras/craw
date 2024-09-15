@@ -42,26 +42,26 @@ class Executor(
         val execution =
             repository.createExecution(
                 recordId = recordState.recordId,
-                url = recordState.baseUrl,
+                url = recordState.url,
                 regexp = recordState.regexp,
                 start = executeAt,
             )
         logger.info("Created execution ${execution.executionId} for record ${recordState.recordId}")
-        addToQueue(executeAt, execution.executionId, recordState)
+        addToQueue(executeAt, execution, recordState)
     }
 
     fun remove(recordId: String): String? {
-        val execution = queue.find { it.recordState.recordId == recordId } ?: return null
+        val schedule = queue.find { it.recordState.recordId == recordId } ?: return null
         reschedule.trySend(Unit)
-        return execution.executionId
+        return schedule.execution.executionId
     }
 
     private fun addToQueue(
         executeAt: Instant,
-        executionId: String,
+        execution: Execution.Pending,
         recordState: RecordState,
     ) {
-        val timedSchedule = TimedExecutionSchedule(executeAt, executionId, recordState)
+        val timedSchedule = TimedExecutionSchedule(executeAt, execution, recordState)
         queue.add(timedSchedule)
         queue.sortBy { it.executeAt }
         reschedule.trySend(Unit)
@@ -79,27 +79,27 @@ class Executor(
                 select {
                     reschedule.onReceive {} // restart the waiting in case something new was scheduled
                     onTimeout(untilNextEvent(timeProvider.now())) {
-                        val (_, executionId, record) =
-                            queue.firstOrNull()
+                        val (_, execution, record) =
+                            queue.removeFirstOrNull()
                                 ?: error("Executor queue is empty and until next event timed out")
 
-                        logger.info("Executing execution $executionId for record ${record.recordId}")
+                        logger.info("Executing execution ${execution.executionId} for record ${record.recordId}")
 
-                        val execution = repository.startExecution(executionId)
-                        send(execution.updateRecordState(record))
+                        val startedExecution = repository.startExecution(execution.executionId)
+                        send(startedExecution.updateRecordState(record))
 
-                        logger.info("Starting crawl for execution $executionId")
+                        logger.info("Starting crawl for execution ${startedExecution.executionId}")
                         crawler.crawl(
-                            executionId = execution.executionId,
-                            url = record.baseUrl,
+                            execution = execution,
+                            url = record.url,
                             regex = record.regexp.toRegex(),
                         )
-                            .map { execution.copy(crawl = it) }
+                            .map { startedExecution.copy(crawl = it) }
                             .collect { send(it.updateRecordState(record)) }
-                        logger.info("Crawl for execution $executionId finished")
+                        logger.info("Crawl for execution ${startedExecution.executionId} finished")
 
                         val end = timeProvider.now()
-                        val executionCompleted = repository.completeExecution(execution.executionId, end)
+                        val executionCompleted = repository.completeExecution(startedExecution.executionId, end)
                         send(executionCompleted.updateRecordState(record))
 
                         // reschedule the next event
@@ -125,13 +125,16 @@ class Executor(
     }
 
     private fun untilNextEvent(now: Instant): Duration {
-        val nextEvent = queue.firstOrNull()?.executeAt ?: return Duration.INFINITE
+        val nextEvent =
+            queue.firstOrNull()?.executeAt
+                ?: return Duration.INFINITE
+                    .also { logger.info("Queue is empty, waiting for infinite duration.") }
         return Duration.between(now, nextEvent)
     }
 
     private data class TimedExecutionSchedule(
         val executeAt: Instant,
-        val executionId: String,
+        val execution: Execution.Pending,
         val recordState: RecordState,
     )
 

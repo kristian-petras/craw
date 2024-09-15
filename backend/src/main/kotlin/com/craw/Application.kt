@@ -19,38 +19,48 @@ import io.ktor.client.HttpClient
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.embeddedServer
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 
-fun main() {
-    val sseTranslator = SseTranslator()
-    val graphQLTranslator = GraphQLTranslator()
-    val restTranslator = RestTranslator()
-    val databaseTranslator = DatabaseTranslator()
+suspend fun main(): Unit =
+    coroutineScope {
+        val sseTranslator = SseTranslator()
+        val graphQLTranslator = GraphQLTranslator()
+        val restTranslator = RestTranslator()
+        val databaseTranslator = DatabaseTranslator()
 
-    val environment = dotenv()
-    val database = DatabaseFactory.postgres(environment["POSTGRES_PASSWORD"]!!)
-    val repository = Repository(translator = databaseTranslator, database = database)
+        val environment = dotenv()
+        val database = DatabaseFactory.postgres(environment["POSTGRES_PASSWORD"]!!)
+        val repository = Repository(translator = databaseTranslator, database = database)
 
-    val timeProvider = TimeProvider { Clock.System.now() }
-    val parser = Parser()
-    val crawler =
-        Crawler(
-            timeProvider = timeProvider,
-            repository = repository,
-            client = HttpClient(),
-            parser = parser,
-            dispatcher = Dispatchers.IO,
-        )
-    val executor = Executor(timeProvider = timeProvider, crawler = crawler, repository = repository)
+        val timeProvider = TimeProvider { Clock.System.now() }
+        val parser = Parser()
+        val crawler =
+            Crawler(
+                timeProvider = timeProvider,
+                repository = repository,
+                client = HttpClient(),
+                parser = parser,
+                dispatcher = Dispatchers.IO,
+            )
+        val executor = Executor(timeProvider = timeProvider, crawler = crawler, repository = repository)
 
-    val graphQLApplication = GraphQLApplication(translator = graphQLTranslator, repository = repository)
-    val graphApplication = GraphApplication(translator = sseTranslator, executor = executor)
-    val recordApplication = RecordApplication(translator = restTranslator, repository = repository, executor = executor)
+        val graphQLApplication = GraphQLApplication(translator = graphQLTranslator, repository = repository)
+        val graphApplication = GraphApplication(translator = sseTranslator)
+        val recordApplication = RecordApplication(translator = restTranslator, repository = repository, executor = executor)
 
-    embeddedServer(
-        factory = CIO,
-        port = 8080,
-        host = "0.0.0.0",
-        module = { module(graphQLApplication, graphApplication, recordApplication) },
-    ).start(wait = true)
-}
+        // start executor
+        launch {
+            executor.subscribe().onEach { graphApplication.update(it) }.collect()
+        }
+
+        embeddedServer(
+            factory = CIO,
+            port = 8080,
+            host = "0.0.0.0",
+            module = { module(graphQLApplication, graphApplication, recordApplication) },
+        ).start(wait = true)
+    }

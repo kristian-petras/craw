@@ -34,12 +34,12 @@ data class WebsiteRecordCreate(
 @Serializable
 data class WebsiteRecordUpdate(
     val recordId: String,
-    val url: String,
-    val regexp: String,
-    val periodicity: String,
-    val label: String,
-    val active: Boolean,
-    val tags: List<String>,
+    val url: String? = null,
+    val regexp: String? = null,
+    val periodicity: String? = null,
+    val label: String? = null,
+    val active: Boolean? = null,
+    val tags: List<String>? = null,
 )
 
 /**
