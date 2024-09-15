@@ -32,14 +32,13 @@ class Crawler(
     private val client: HttpClient,
     private val dispatcher: CoroutineDispatcher,
 ) {
-    // TODO: website cache with expiration
-
     fun crawl(
         execution: Execution.Pending,
         url: String,
         regex: Regex,
     ): Flow<Crawl> =
         channelFlow {
+            val cache = mutableSetOf<String>()
             val updateChannel = Channel<Unit>(Channel.UNLIMITED)
             val root = execution.crawl
             updateChannel.send(Unit)
@@ -61,6 +60,7 @@ class Crawler(
                 crawl = root,
                 regex = regex,
                 updateChannel = updateChannel,
+                cache = cache
             )
 
             logger.info("[${root.crawlId}] Root crawl finished")
@@ -75,12 +75,13 @@ class Crawler(
         crawl: Crawl.Pending,
         regex: Regex,
         updateChannel: SendChannel<Unit>,
+        cache: Set<String>,
     ) {
         val started = repository.startCrawl(crawl.crawlId, timeProvider.now())
         logger.info("[${started.crawlId}] Starting crawl for ${started.url} at ${started.start}")
         updateChannel.send(Unit)
 
-        when (val fetched = fetchLinks(crawl.url, regex)) {
+        when (val fetched = fetchLinks(crawl.url, regex, cache)) {
             is ParseResult.Failure -> {
                 repository.invalidateCrawl(
                     crawlId = crawl.crawlId,
@@ -120,6 +121,7 @@ class Crawler(
                 logger.info("[${completed.crawlId}] Completed crawl for ${completed.url} at ${completed.end}")
                 updateChannel.send(Unit)
 
+                val updatedCache = cache + matches + rest
                 pending.map { child ->
                     scope.async(dispatcher) {
                         process(
@@ -129,6 +131,7 @@ class Crawler(
                             crawl = child,
                             regex = regex,
                             updateChannel = updateChannel,
+                            cache = updatedCache
                         )
                     }
                 }.awaitAll()
@@ -139,13 +142,14 @@ class Crawler(
     private suspend fun fetchLinks(
         url: Url,
         regex: Regex,
+        cache: Set<String>,
     ): ParseResult {
         // TODO: robots.txt handling
         val payload = runCatching { client.get(url) }.getOrNull()
         delay(10.seconds)
         if (payload != null && payload.status.isSuccess()) {
             logger.info("Fetched $url with status ${payload.status}")
-            return parser.parse(url, payload.bodyAsText(), regex)
+            return parser.parse(url, payload.bodyAsText(), regex, cache)
         } else {
             logger.warn("Failed to fetch $url")
             if (payload != null) {
