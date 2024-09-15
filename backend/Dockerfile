@@ -21,6 +21,5 @@ RUN gradle buildFatJar --no-daemon
 FROM amazoncorretto:22 AS runtime
 EXPOSE 8080:8080
 RUN mkdir /app
-COPY .env /app/.env
 COPY --from=build /home/gradle/src/build/libs/*.jar /app/craw.jar
 ENTRYPOINT ["java","-jar","/app/craw.jar"]

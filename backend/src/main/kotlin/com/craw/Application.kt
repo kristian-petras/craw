@@ -14,7 +14,6 @@ import com.craw.translator.RestTranslator
 import com.craw.translator.SseTranslator
 import com.craw.utility.DatabaseFactory
 import com.craw.utility.TimeProvider
-import io.github.cdimascio.dotenv.dotenv
 import io.ktor.client.HttpClient
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.embeddedServer
@@ -32,8 +31,8 @@ suspend fun main(): Unit =
         val restTranslator = RestTranslator()
         val databaseTranslator = DatabaseTranslator()
 
-        val environment = dotenv()
-        val database = DatabaseFactory.postgres(environment["POSTGRES_PASSWORD"]!!)
+        val password = System.getenv("POSTGRES_PASSWORD")
+        val database = DatabaseFactory.postgres(password)
         val repository = Repository(translator = databaseTranslator, database = database)
 
         val timeProvider = TimeProvider { Clock.System.now() }
@@ -50,7 +49,8 @@ suspend fun main(): Unit =
 
         val graphQLApplication = GraphQLApplication(translator = graphQLTranslator, repository = repository)
         val graphApplication = GraphApplication(translator = sseTranslator)
-        val recordApplication = RecordApplication(translator = restTranslator, repository = repository, executor = executor)
+        val recordApplication =
+            RecordApplication(translator = restTranslator, repository = repository, executor = executor)
 
         // start executor
         launch {

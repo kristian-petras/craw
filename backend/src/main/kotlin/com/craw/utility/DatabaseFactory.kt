@@ -12,9 +12,12 @@ object DatabaseFactory {
         )
     }
 
-    fun postgres(password: String): Database =
+    fun postgres(
+        password: String,
+        hostname: String = "db",
+    ): Database =
         Database.connect(
-            url = "jdbc:postgresql://localhost:5432/postgres",
+            url = "jdbc:postgresql://$hostname:5432/postgres",
             user = "postgres",
             password = password,
             driver = "org.postgresql.Driver",
