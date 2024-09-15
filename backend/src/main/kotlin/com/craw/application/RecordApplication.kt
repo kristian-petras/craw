@@ -24,9 +24,7 @@ class RecordApplication(
         val newRecord = translator.translate(record)
         val recordState = repository.createRecord(newRecord) ?: return null
 
-        if (recordState.active) {
-            executor.schedule(recordState)
-        }
+        executor.schedule(recordState.recordId)
 
         return recordState.recordId
     }
@@ -36,9 +34,7 @@ class RecordApplication(
         val updatedRecord = translator.translate(oldRecord, record)
         val recordState = repository.updateRecord(updatedRecord) ?: return false
 
-        if (recordState.active) {
-            executor.schedule(recordState)
-        }
+        executor.schedule(recordState.recordId)
 
         return true
     }

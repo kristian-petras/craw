@@ -60,7 +60,7 @@ class Crawler(
                 crawl = root,
                 regex = regex,
                 updateChannel = updateChannel,
-                cache = cache
+                cache = cache,
             )
 
             logger.info("[${root.crawlId}] Root crawl finished")
@@ -131,7 +131,7 @@ class Crawler(
                             crawl = child,
                             regex = regex,
                             updateChannel = updateChannel,
-                            cache = updatedCache
+                            cache = updatedCache,
                         )
                     }
                 }.awaitAll()

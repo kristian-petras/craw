@@ -83,9 +83,13 @@ class RestTranslator {
             is Crawl.Running, is Crawl.Invalid, is Crawl.Pending -> null
         }
 
-    private fun Crawl.toLinks(): List<String> =
+    private fun Crawl.toLinks(root: Boolean = true): List<String> =
         when (this) {
-            is Crawl.Completed -> listOf(url.toString()) + crawls.flatMap { it.toLinks() }
+            is Crawl.Completed -> {
+                val rootLink = if (root) emptyList() else listOf(url.toString())
+                rootLink + crawls.flatMap { it.toLinks(false) }
+            }
+
             is Crawl.Running, is Crawl.Pending, is Crawl.Invalid -> emptyList()
         }
 }

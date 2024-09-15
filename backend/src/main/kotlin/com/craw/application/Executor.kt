@@ -25,36 +25,58 @@ class Executor(
     private val reschedule = Channel<Unit>(Channel.UNLIMITED)
 
     fun schedule(
-        recordState: RecordState,
+        recordId: String,
         reschedule: Boolean = false,
     ) {
-        logger.info("Scheduling record ${recordState.recordId}")
-        val executionId = remove(recordState.recordId)
-        if (executionId != null) {
-            logger.info("Removing old execution $executionId for record ${recordState.recordId}")
-            repository.deleteExecution(executionId)
+        val recordState = repository.getRecord(recordId)
+        if (recordState == null || recordState.active.not()) {
+            logger.info("Record $recordId is not active, skipping scheduling.")
+            remove(recordId)
+            return
         }
 
-        val now = timeProvider.now()
-        val executeAt = if (reschedule) now + recordState.periodicity else now
+        logger.info("Scheduling record ${recordState.recordId}")
+        val execution = find(recordState.recordId)?.execution
 
-        logger.info("Scheduling new execution for ${recordState.recordId} at $executeAt")
-        val execution =
-            repository.createExecution(
-                recordId = recordState.recordId,
-                url = recordState.url,
-                regexp = recordState.regexp,
-                start = executeAt,
+        if (execution == null) {
+            val now = timeProvider.now()
+            val executeAt = if (reschedule) now + recordState.periodicity else now
+
+            logger.info("Scheduling new execution for ${recordState.recordId} at $executeAt")
+            val newExecution =
+                repository.createExecution(
+                    recordId = recordState.recordId,
+                    url = recordState.url,
+                    regexp = recordState.regexp,
+                    start = executeAt,
+                )
+            logger.info("Created execution ${newExecution.executionId} for record ${recordState.recordId}")
+            addToQueue(executeAt, newExecution, recordState)
+        } else if (recordState.executions.none { it is Execution.Running }) {
+            logger.info("Execution ${execution.executionId} for record ${recordState.recordId} is outdated, removing.")
+            remove(recordState.recordId)
+            schedule(recordState.recordId, reschedule)
+        } else {
+            logger.info(
+                "Execution ${execution.executionId} for record ${recordState.recordId} is outdated," +
+                    "but still running. Skipping rescheduling.",
             )
-        logger.info("Created execution ${execution.executionId} for record ${recordState.recordId}")
-        addToQueue(executeAt, execution, recordState)
+        }
     }
 
-    fun remove(recordId: String): String? {
-        val schedule = queue.find { it.recordState.recordId == recordId } ?: return null
+    fun remove(recordId: String): Execution.Pending? {
+        val schedule = find(recordId) ?: return null
+        val success = queue.remove(schedule)
+        if (success) {
+            logger.info("Removed record $recordId from the queue")
+        } else {
+            logger.info("Record $recordId was not found in the queue")
+        }
         reschedule.trySend(Unit)
-        return schedule.execution.executionId
+        return schedule.execution
     }
+
+    private fun find(recordId: String): TimedExecutionSchedule? = queue.find { it.recordState.recordId == recordId }
 
     private fun addToQueue(
         executeAt: Instant,
@@ -103,7 +125,7 @@ class Executor(
                         send(executionCompleted.updateRecordState(record))
 
                         // reschedule the next event
-                        schedule(record, true)
+                        schedule(record.recordId, true)
                     }
                 }
             }
