@@ -49,7 +49,7 @@ internal fun Application.module(
 
     routing {
         install(ContentNegotiation) {
-            json(json)
+            json(Json)
         }
         install(CORS) {
             anyHost()
@@ -128,7 +128,7 @@ private fun Route.restRoutes(app: RecordApplication) {
 private fun Route.sseRoutes(app: GraphApplication) {
     sse("/graph") {
         app.subscribe()
-            .map { json.encodeToString(it) }
+            .map { Json.encodeToString(it) }
             .map { ServerSentEvent(null, it) }
     }
 }
@@ -144,8 +144,3 @@ private fun Route.graphQLRoutes() {
 private fun Route.swaggerRoutes() {
     swaggerUI("/swagger", swaggerFile = "openapi/documentation.yaml")
 }
-
-private val json =
-    Json {
-        prettyPrint = true
-    }
