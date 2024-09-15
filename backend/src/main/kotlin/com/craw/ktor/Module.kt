@@ -126,7 +126,7 @@ private fun Route.restRoutes(app: RecordApplication) {
 }
 
 private fun Route.sseRoutes(app: GraphApplication) {
-    sse("graph") {
+    sse("/graph") {
         app.subscribe()
             .map { json.encodeToString(it) }
             .map { ServerSentEvent(null, it) }

@@ -29,10 +29,10 @@ object ServerSentEvents {
                 messages()
                     .onEach {
                         if (it.event != null) {
-                            write("event: ${it.event}\n")
+                            write("event: ${it.event}\n\n")
                             call.application.log.info("event: ${it.event}")
                         }
-                        write("data: ${it.data}\n")
+                        write("data: ${it.data}\n\n")
                         call.application.log.info("data: ${it.data}")
                         flush()
                     }
