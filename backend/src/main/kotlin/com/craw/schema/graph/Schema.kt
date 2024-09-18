@@ -26,6 +26,7 @@ enum class GraphExecutionType {
 @Serializable
 data class GraphRecord(
     val recordId: String,
+    val url: String,
     val regexp: String,
     val periodicity: String,
     val label: String,

@@ -21,6 +21,7 @@ class SseTranslator {
     private fun RecordState.toGraphRecord(): GraphRecord =
         GraphRecord(
             recordId = recordId,
+            url = url,
             regexp = regexp,
             label = label,
             active = active,
