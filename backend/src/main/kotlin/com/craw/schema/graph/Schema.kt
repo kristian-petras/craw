@@ -11,8 +11,9 @@ data class Graph(
 @Serializable
 data class GraphRootNode(
     val record: GraphRecord,
-    val execution: GraphExecution,
-    val node: GraphNode,
+    // ordered chronologically
+    val executions: List<GraphExecution>,
+    val node: GraphNode?,
 )
 
 @Serializable

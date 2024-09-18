@@ -11,14 +11,12 @@ import com.craw.schema.internal.Execution
 import com.craw.schema.internal.RecordState
 
 class SseTranslator {
-    fun translate(record: RecordState): GraphRootNode? {
-        val execution = record.executions.lastOrNull() ?: return null
-        return GraphRootNode(
+    fun translate(record: RecordState): GraphRootNode =
+        GraphRootNode(
             record = record.toGraphRecord(),
-            execution = execution.toGraphExecution(),
-            node = execution.toGraphNode(),
+            executions = record.executions.map { it.toGraphExecution() },
+            node = record.executions.lastOrNull()?.toGraphNode(),
         )
-    }
 
     private fun RecordState.toGraphRecord(): GraphRecord =
         GraphRecord(
@@ -76,8 +74,8 @@ class SseTranslator {
                     type = GraphNodeType.INVALID,
                     url = url.toString(),
                     title = null,
-                    start = null,
-                    end = null,
+                    start = start,
+                    end = end,
                     nodes = emptyList(),
                 )
 

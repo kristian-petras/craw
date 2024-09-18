@@ -13,6 +13,7 @@ import com.expediagroup.graphql.server.ktor.graphQLPostRoute
 import com.expediagroup.graphql.server.ktor.graphQLSDLRoute
 import com.expediagroup.graphql.server.ktor.graphiQLRoute
 import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
@@ -54,6 +55,10 @@ internal fun Application.module(
         install(CORS) {
             anyHost()
             allowHeader(HttpHeaders.ContentType)
+            allowMethod(HttpMethod.Get)
+            allowMethod(HttpMethod.Post)
+            allowMethod(HttpMethod.Delete)
+            allowMethod(HttpMethod.Options)
         }
         restRoutes(recordApplication)
         sseRoutes(graphApplication)

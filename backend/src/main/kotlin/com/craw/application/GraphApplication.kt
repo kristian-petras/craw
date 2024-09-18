@@ -19,7 +19,7 @@ class GraphApplication(private val translator: SseTranslator) {
 
     fun update(record: RecordState) {
         val oldGraph = state.value
-        val node = translator.translate(record) ?: return
+        val node = translator.translate(record)
         state.value = oldGraph.replaceNode(node)
         logger.info("Updated graph to new state ${state.value}")
     }
