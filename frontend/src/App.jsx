@@ -1,4 +1,3 @@
-import React, {useState} from 'react';
 import {Header, Logo, Status} from "./components/Header/Header.jsx";
 import './styles/Content.css';
 import Sidebar from "./components/Sidebar/Sidebar.jsx";
@@ -10,14 +9,15 @@ import {SidebarItem} from "./components/Sidebar/SidebarItem.jsx";
 import Body from "./components/Body/Body.jsx";
 import TreeSection from "./components/Tree/TreeSection.jsx";
 import {Box} from "@radix-ui/themes";
+import config from "./config.js";
+import {useState} from "react";
 
 function App() {
     const initialBackends = backends_placeholder;
 
     const availableBackends = usePingBackends(initialBackends);
     const [selectedRootNode, setSelectedRootNode] = useState();
-    const {graph, loading} = useGraphStream('http://localhost:8080/graph', setSelectedRootNode);
-
+    const {graph, loading} = useGraphStream(config.backendHost + "/graph", setSelectedRootNode);
 
     return (
         <div className="App">

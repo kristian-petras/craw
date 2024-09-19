@@ -89,7 +89,6 @@
     background-color: var(--gray-6);
 }
 
-/* Dialog overlay styling */
 .DialogOverlay {
     background-color: rgba(0, 0, 0, 0.5);
     position: fixed;
@@ -97,36 +96,24 @@
     z-index: 10;
 }
 
-/* Dialog content styling */
-.DialogCardContent {
-    background-color: white;
-    border-radius: 8px;
+.DialogTitle {
+    margin: 0;
+}
+
+.DialogDescription {
+    margin: 0;
+}
+
+.DialogContent {
     box-shadow: hsl(206, 22%, 7%) 0px 10px 38px -10px, hsl(206, 22%, 7%) 0px 10px 20px -15px;
-    padding: 20px;
     position: fixed;
+    width: 500px;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 11;
-    max-width: 400px;
-    width: 100%;
 }
 
-/* Card specific styling */
-.CustomCard {
-    width: 100%;
-    border-radius: 8px;
-    padding: 16px;
+.DialogClose {
+    width: 120px;
 }
-
-.CardCloseButton {
-    background-color: #ff5c5c;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-
-
