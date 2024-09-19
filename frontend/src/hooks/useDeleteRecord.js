@@ -9,7 +9,7 @@ const useDeleteRecord = (source) => {
         setError(null);
 
         try {
-            const response = await fetch(`${source}/${recordId}`, {
+            const response = await fetch(`${source}/record/${recordId}`, {
                 method: 'DELETE',
             });
 

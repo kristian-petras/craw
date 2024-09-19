@@ -7,7 +7,7 @@ const useRecordForm = (initialValues, source, method, recordId = null) => {
         regexp: initialValues.regexp || '',
         periodicity: initialValues.periodicity || '',
         tags: initialValues.tags || '',
-        isActive: initialValues.isActive || true,
+        active: initialValues.active || true,
     });
 
     const [buttonText, setButtonText] = useState(method === "POST" ? "Create" : "Edit");
@@ -25,11 +25,18 @@ const useRecordForm = (initialValues, source, method, recordId = null) => {
         setIsLoading(true);
         setButtonText("Loading...");
 
-        const recordData = {
-            ...formData,
-            tags: formData.tags.split('|'),
-            active: formData.isActive,
-        };
+        let recordData
+        if (method === "POST") {
+            recordData = {
+                ...formData,
+                tags: formData.tags.split('|'),
+                active: formData.active,
+            };
+        } else {
+            recordData = {
+                ...formData,
+            }
+        }
 
         // Add recordId if method is PUT
         if (method === "PUT" && recordId) {

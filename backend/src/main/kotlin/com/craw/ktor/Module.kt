@@ -28,6 +28,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
+import io.ktor.server.routing.options
 import io.ktor.server.routing.post
 import io.ktor.server.routing.put
 import io.ktor.server.routing.route
@@ -54,10 +55,13 @@ internal fun Application.module(
         }
         install(CORS) {
             anyHost()
+            allowCredentials = true
             allowHeader(HttpHeaders.ContentType)
             allowHeader(HttpHeaders.AccessControlAllowOrigin)
+            allowHeader(HttpHeaders.Authorization)
             allowMethod(HttpMethod.Get)
             allowMethod(HttpMethod.Post)
+            allowMethod(HttpMethod.Put)
             allowMethod(HttpMethod.Delete)
             allowMethod(HttpMethod.Options)
         }
@@ -76,6 +80,9 @@ private fun Route.restRoutes(app: RecordApplication) {
             call.application.log.info("Response: GET /records $records")
             call.respond(HttpStatusCode.OK, records)
         }
+        options {
+            call.respond(HttpStatusCode.OK)
+        }
     }
     route("/record") {
         get("{id}") {
@@ -89,6 +96,12 @@ private fun Route.restRoutes(app: RecordApplication) {
                 call.application.log.info("Response: GET /record $id not found")
                 call.respond(HttpStatusCode.NotFound)
             }
+        }
+        options("{id}") {
+            call.respond(HttpStatusCode.OK)
+        }
+        options {
+            call.respond(HttpStatusCode.OK)
         }
         post {
             call.application.log.info("Request: POST /record")

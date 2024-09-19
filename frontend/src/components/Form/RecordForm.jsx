@@ -57,8 +57,8 @@ const RecordForm = ({title, description, formData, handleChange, handleSubmit, i
                 <Flex width="100%" direction="row" gap="3" align="center">
                     <Text size="3">Active</Text>
                     <Checkbox
-                        checked={formData.isActive}
-                        onCheckedChange={(checked) => handleChange('isActive', checked)}
+                        checked={formData.active}
+                        onCheckedChange={(checked) => handleChange('active', checked)}
                     />
                 </Flex>
 
@@ -73,7 +73,7 @@ const RecordForm = ({title, description, formData, handleChange, handleSubmit, i
                                 !formData.periodicity ||
                                 !formData.tags
                             }
-                            style={{ marginTop: "8px", width: "120px" }}
+                            style={{marginTop: "8px", width: "120px"}}
                             size="3"
                         >
                             {buttonText}

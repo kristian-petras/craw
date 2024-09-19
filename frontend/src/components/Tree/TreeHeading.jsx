@@ -1,13 +1,13 @@
 import {Box, Button, Card, Checkbox, Flex, Heading, IconButton, Text, TextArea, Theme} from "@radix-ui/themes";
-import { TrashIcon, Pencil1Icon } from '@radix-ui/react-icons';
+import {TrashIcon, Pencil1Icon} from '@radix-ui/react-icons';
 import useDeleteRecord from "../../hooks/useDeleteRecord.js";
 import useRecordForm from "../../hooks/useRecordForm.js";
 import config from "../../config.js";
 import * as Dialog from "@radix-ui/react-dialog";
 import RecordForm from "../Form/RecordForm.jsx";
 
-const DeleteRecordButton = ({ recordId, onDelete }) => {
-    const { deleteRecord, isLoading, error } = useDeleteRecord(config.backendHost);
+const DeleteRecordButton = ({recordId, onDelete}) => {
+    const {deleteRecord, isLoading, error} = useDeleteRecord(config.backendHost);
 
     const handleDelete = () => {
         deleteRecord(recordId, onDelete);
@@ -16,7 +16,7 @@ const DeleteRecordButton = ({ recordId, onDelete }) => {
     return (
         <>
             <IconButton size="4" onClick={handleDelete} disabled={isLoading} aria-label="Delete record">
-                <TrashIcon width="32" height="32" />
+                <TrashIcon width="32" height="32"/>
             </IconButton>
             {error && <Text size="2" color="red">{error}</Text>}
         </>
@@ -31,9 +31,15 @@ const EditRecordPopup = ({record}) => {
         regexp: record.regexp,
         periodicity: record.periodicity,
         tags: record.tags,
-        isActive: record.isActive,
+        active: record.active,
     }
-    const {formData, isLoading, buttonText, handleChange, handleSubmit} = useRecordForm(initValues, source, "PUT", record.recordId);
+    const {
+        formData,
+        isLoading,
+        buttonText,
+        handleChange,
+        handleSubmit
+    } = useRecordForm(initValues, source, "PUT", record.recordId);
 
     return <RecordForm
         title="Edit Record"
@@ -65,7 +71,7 @@ const EditRecord = ({record}) => (
     </Dialog.Root>
 );
 
-const TreeHeading = ({ label, url, record, selected }) => {
+const TreeHeading = ({label, url, record, selected}) => {
     const handleRecordDelete = () => {
         selected = null
     };
@@ -78,8 +84,8 @@ const TreeHeading = ({ label, url, record, selected }) => {
                 <Text size="2">{url}</Text>
             </Flex>
             <Flex direction="row" align="center" justify="center" gap="3">
-                <EditRecord record={record} />
-                <DeleteRecordButton recordId={record.recordId} onDelete={handleRecordDelete} />
+                <EditRecord record={record}/>
+                <DeleteRecordButton recordId={record.recordId} onDelete={handleRecordDelete}/>
             </Flex>
         </Flex>
     );
