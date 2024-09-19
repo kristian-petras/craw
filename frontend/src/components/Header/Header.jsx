@@ -18,21 +18,25 @@ export const Logo = () => (
     </Flex>
 );
 
-export const Status = ({availableBackends}) => (
-    <Select.Root defaultValue={availableBackends[0]?.host.toString()} size="2">
+export const Status = ({host, status}) => (
+    <Select.Root defaultValue={host} size="2">
         <Select.Trigger variant="ghost"/>
         <Select.Content position="popper">
-            {availableBackends.map((backend) => (
-                <Select.Item key={backend.host} value={backend.host.toString()}>
-                    <Flex direction="row" gap="2" align="center">
-                        <Text weight="bold">{backend.title}</Text>
-                        <Separator orientation="vertical"/>
-                        <Text>{backend.host}</Text>
-                        <Separator orientation="vertical"/>
-                        <Text size="1" highContrast>{backend.ping}ms</Text>
-                    </Flex>
-                </Select.Item>
-            ))}
+            <Select.Item key={host} value={host}>
+                <Flex direction="row" gap="2" align="center">
+                    <Text weight="bold">Backend</Text>
+                    <Separator orientation="vertical"/>
+                    <Text>{host}</Text>
+                    <Separator orientation="vertical"/>
+                    <Text
+                        size="2"
+                        highContrast
+                        style={{ color: !status ? 'inherit': '#FF977D'}}
+                    >
+                        {!status ? "Online" : "Offline"}
+                    </Text>
+                </Flex>
+            </Select.Item>
         </Select.Content>
     </Select.Root>
 );

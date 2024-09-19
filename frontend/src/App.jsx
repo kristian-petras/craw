@@ -1,8 +1,7 @@
 import {Header, Logo, Status} from "./components/Header/Header.jsx";
 import './styles/Content.css';
-import Sidebar from "./components/Sidebar/Sidebar.jsx";
-import backends_placeholder from "./dummy/backends.js";
-import usePingBackends from "./hooks/usePingBackends.js";
+import './styles/Tree.css';
+import {Sidebar} from "./components/Sidebar/Sidebar.jsx";
 import useGraphStream from "./hooks/useGraphStream.js";
 
 import {SidebarItem} from "./components/Sidebar/SidebarItem.jsx";
@@ -13,21 +12,22 @@ import config from "./config.js";
 import {useState} from "react";
 
 function App() {
-    const initialBackends = backends_placeholder;
-
-    const availableBackends = usePingBackends(initialBackends);
     const [selectedRootNode, setSelectedRootNode] = useState();
-    const {graph, loading} = useGraphStream(config.backendHost + "/graph", setSelectedRootNode);
+    const [backendLoading, setBackendLoading] = useState(true);
+    const {
+        graph,
+        loading
+    } = useGraphStream(config.backendHost + "/graph", setSelectedRootNode, backendLoading, setBackendLoading);
 
     return (
         <div className="App">
             <Header>
                 <Logo/>
-                <Status availableBackends={availableBackends}/>
+                <Status host={config.backendHost} status={backendLoading}/>
             </Header>
 
             <Body>
-                <Sidebar>
+                <Sidebar graph={graph ? graph : null}>
                     {graph && graph.nodes && graph.nodes.length > 0 ? (
                         graph.nodes.map(({record}) => (
                             <SidebarItem

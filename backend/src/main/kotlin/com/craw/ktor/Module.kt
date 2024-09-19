@@ -55,6 +55,7 @@ internal fun Application.module(
         install(CORS) {
             anyHost()
             allowHeader(HttpHeaders.ContentType)
+            allowHeader(HttpHeaders.AccessControlAllowOrigin)
             allowMethod(HttpMethod.Get)
             allowMethod(HttpMethod.Post)
             allowMethod(HttpMethod.Delete)

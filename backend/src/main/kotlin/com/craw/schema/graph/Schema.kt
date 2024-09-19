@@ -12,7 +12,7 @@ data class Graph(
 data class GraphRootNode(
     val record: GraphRecord,
     // ordered chronologically
-    val executions: List<GraphExecution>,
+    val execution: List<GraphExecution>,
     val node: GraphNode?,
 )
 

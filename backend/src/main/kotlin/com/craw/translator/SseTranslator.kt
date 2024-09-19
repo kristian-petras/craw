@@ -14,7 +14,7 @@ class SseTranslator {
     fun translate(record: RecordState): GraphRootNode =
         GraphRootNode(
             record = record.toGraphRecord(),
-            executions = record.executions.map { it.toGraphExecution(record.label) },
+            execution = record.executions.map { it.toGraphExecution(record.label) },
             node = record.executions.lastOrNull()?.toGraphNode(),
         )
 

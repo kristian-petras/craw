@@ -1,8 +1,7 @@
 import {useEffect, useState} from 'react';
 
-const useGraphStream = (source, setSelected) => {
+const useGraphStream = (source, setSelected, backendLoading, setBackendLoading) => {
     const [graph, setGraph] = useState();
-    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         let stream;
@@ -11,22 +10,16 @@ const useGraphStream = (source, setSelected) => {
         const connectToStream = () => {
             stream = new EventSource(source);
 
-            stream.onopen = (event) => {
-                console.log(event);
-            }
-
             stream.onmessage = (event) => {
-                console.log(JSON.parse(event.data));
                 setGraph(JSON.parse(event.data));
-                setLoading(false);
+                console.log(graph)
+                setBackendLoading(false);
             };
 
             stream.onerror = (err) => {
                 setSelected(null);
-                console.error('Stream error:', err);
                 stream.close();
-                setLoading(true);
-
+                setBackendLoading(true);
                 retryTimeout = setTimeout(connectToStream, 5000);
             };
         };
@@ -41,7 +34,7 @@ const useGraphStream = (source, setSelected) => {
         };
     }, [source]);
 
-    return {graph, loading};
+    return {graph, loading: backendLoading};
 };
 
 export default useGraphStream;

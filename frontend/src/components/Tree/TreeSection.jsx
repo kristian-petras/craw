@@ -1,66 +1,29 @@
-import {Box} from "@radix-ui/themes";
+import {Box, Flex, Text} from "@radix-ui/themes";
 import TreeHeading from './TreeHeading';
 import TreeView from './TreeView';
 import {useState} from "react";
+import ExecutionsView from "../Execution/ExecutionsView.jsx";
 
-
-const getDomain = (url) => {
-    const urlObj = url && url.startsWith('http') ? new URL(url) : null;
-    return urlObj ? urlObj.hostname : null;
-};
-
-const mergeByDomain = (nodes) => {
-    const domainMap = {};
-
-    nodes.forEach(node => {
-        const domain = getDomain(node.url);
-
-        if (!domain) return;
-
-        if (!domainMap[domain]) {
-            domainMap[domain] = { ...node, children: [] };
-        }
-
-        const filteredChildren = node.children.filter(child => getDomain(child.url) !== domain);
-        domainMap[domain].children.push(...filteredChildren);
-    });
-
-    return Object.values(domainMap).map(node => ({
-        ...node,
-        children: mergeByDomain(node.children),
-    }));
-};
 
 const TreeSection = ({rootNodes, selected}) => {
+    const [isDomainMode, setDomainMode] = useState(false);
     const rootNode = rootNodes.find(node => node.record.recordId === selected);
-
-    const [isDomainMode, setDomainMode] = useState(true);
-
-    const convertToTreeData = (node) => ({
-        type: node.type,
-        title: node.title,
-        url: node.url,
-        start: node.start,
-        end: node.end,
-        children: node.nodes.map(convertToTreeData),
-    });
-
-    let treeData= convertToTreeData(rootNode.node);
-
-    if (isDomainMode) {
-        console.log(treeData);
-        treeData = mergeByDomain([treeData])[0];
-    }
 
     return (
         <Box className="TreeSection">
             <TreeHeading
                 label={rootNode.record.label}
-                url={rootNode.node.url}
-                recordId={rootNode.record.recordId}
+                url={rootNode.record.url}
+                record={rootNode.record}
                 selected={selected}
             />
-            <TreeView treeData={treeData}/>
+            <Flex height="100%" gap="3">
+                <TreeView rootNode={rootNode} isDomainMode={isDomainMode} setDomainMode={setDomainMode}/>
+                <Flex direction="column" className="ExecutionsView">
+                    <Text size="3" weight="bold">Executions</Text>
+                    <ExecutionsView executions={rootNode.execution}/>
+                </Flex>
+            </Flex>
         </Box>
     );
 };

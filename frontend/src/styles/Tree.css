@@ -1,0 +1,73 @@
+.TreeSection {
+    width: 100%;
+    height: 100%;
+    margin-left: 250px;
+    padding: var(--space-7) var(--space-7) 100px;
+}
+
+.TreeView {
+    width: 80%;
+    height: 100%;
+    border-radius: var(--radius-4);
+    border: solid 1px var(--gray-a6);
+}
+
+.ExecutionsView {
+    height: 100%;
+    width: 20%;
+    padding: var(--space-4);
+    border-radius: var(--radius-4);
+    border: solid 1px var(--gray-a6);
+    overflow: auto;
+}
+
+.ExecutionsViewFull {
+    height: 100%;
+    width: 100%;
+    padding: var(--space-4);
+    border-radius: var(--radius-4);
+    border: solid 1px var(--gray-a6);
+    overflow: auto;
+}
+
+.TreeHeading {
+    margin-bottom: var(--space-3);
+}
+
+.TreeNode .Container {
+    background-color: var(--color-background);
+    border: solid 1px var(--gray-8);
+    text-align: left;
+    margin: var(--space-2);
+    padding: var(--space-3);
+}
+
+.TreeNode .Text.SiteTitle,
+.TreeNode .Text.Url {
+    direction: rtl;
+}
+
+.TreeNode .Text.Date {
+    color: var(--gray-11);
+}
+
+.TreeView .rd3t-link {
+    stroke: var(--gray-8);
+    transform: translateX(100px);
+    stroke-width: 1px;
+}
+
+/*
+ box-shadow: -15px 0 30px -10px var(--orange-a7),0 0 30px -10px var(--pink-a7),15px 0 30px -10px var(--violet-a7),0 0 0 1px var(--pink-a4);
+ */
+.TreeView .rd3t-leaf-node .TreeNode .Container {
+    background-color: var(--accent-2);
+}
+
+.TreeViewChange {
+    position: absolute !important;
+    margin-top: 10px;
+    left: 40% !important;
+    right: 40% !important;
+    background-color: #111111 !important;
+}
