@@ -14,7 +14,7 @@ class SseTranslator {
     fun translate(record: RecordState): GraphRootNode =
         GraphRootNode(
             record = record.toGraphRecord(),
-            executions = record.executions.map { it.toGraphExecution() },
+            executions = record.executions.map { it.toGraphExecution(record.label) },
             node = record.executions.lastOrNull()?.toGraphNode(),
         )
 
@@ -29,32 +29,40 @@ class SseTranslator {
             tags = tags,
         )
 
-    private fun Execution.toGraphExecution(): GraphExecution =
+    private fun Execution.toGraphExecution(label: String): GraphExecution =
         when (this) {
             is Execution.Completed ->
                 GraphExecution(
+                    label = label,
                     type = GraphExecutionType.COMPLETED,
                     executionId = executionId,
                     start = start,
                     end = end,
+                    crawledCount = crawl.toGraphNode().toCrawlCount()
                 )
 
             is Execution.Running ->
                 GraphExecution(
+                    label = label,
                     type = GraphExecutionType.RUNNING,
                     executionId = executionId,
                     start = start,
                     end = null,
+                    crawledCount = crawl.toGraphNode().toCrawlCount()
                 )
 
             is Execution.Pending ->
                 GraphExecution(
+                    label = label,
                     type = GraphExecutionType.PENDING,
                     executionId = executionId,
                     start = start,
                     end = null,
+                    crawledCount = crawl.toGraphNode().toCrawlCount()
                 )
         }
+
+    private fun GraphNode.toCrawlCount(): Int = nodes.count() + nodes.sumOf { it.toCrawlCount() }
 
     private fun Execution.toGraphNode(): GraphNode = crawl.toGraphNode()
 

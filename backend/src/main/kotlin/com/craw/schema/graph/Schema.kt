@@ -37,9 +37,11 @@ data class GraphRecord(
 @Serializable
 data class GraphExecution(
     val type: GraphExecutionType,
+    val label: String,
     val executionId: String,
     val start: Instant,
     val end: Instant?,
+    val crawledCount: Int,
 )
 
 @Serializable
