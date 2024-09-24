@@ -9,6 +9,10 @@ const TreeSection = ({rootNodes, selected}) => {
     const [isDomainMode, setDomainMode] = useState(false);
     const rootNode = rootNodes.find(node => node.record.recordId === selected);
 
+    if (!rootNode) {
+        return <Box>Select record</Box>
+    }
+
     return (
         <Box className="TreeSection">
             <TreeHeading

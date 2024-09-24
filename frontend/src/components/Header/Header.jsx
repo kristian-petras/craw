@@ -31,7 +31,7 @@ export const Status = ({host, status}) => (
                     <Text
                         size="2"
                         highContrast
-                        style={{ color: !status ? 'inherit': '#FF977D'}}
+                        style={{color: !status ? 'inherit' : '#FF977D'}}
                     >
                         {!status ? "Online" : "Offline"}
                     </Text>

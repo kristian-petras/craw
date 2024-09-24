@@ -1,5 +1,5 @@
-import {Box, Button, Card, Checkbox, Flex, Heading, IconButton, Text, TextArea, Theme} from "@radix-ui/themes";
-import {TrashIcon, Pencil1Icon} from '@radix-ui/react-icons';
+import {Flex, Heading, IconButton, Text, Theme} from "@radix-ui/themes";
+import {Pencil1Icon, TrashIcon} from '@radix-ui/react-icons';
 import useDeleteRecord from "../../hooks/useDeleteRecord.js";
 import useRecordForm from "../../hooks/useRecordForm.js";
 import config from "../../config.js";

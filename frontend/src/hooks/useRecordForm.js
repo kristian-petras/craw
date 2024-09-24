@@ -25,12 +25,13 @@ const useRecordForm = (initialValues, source, method, recordId = null) => {
         setIsLoading(true);
         setButtonText("Loading...");
 
+
         let recordData
         if (method === "POST") {
             recordData = {
                 ...formData,
-                tags: formData.tags.split('|'),
                 active: formData.active,
+                tags: formData.tags.split('|'),
             };
         } else {
             recordData = {
@@ -38,12 +39,17 @@ const useRecordForm = (initialValues, source, method, recordId = null) => {
             }
         }
 
+
         // Add recordId if method is PUT
         if (method === "PUT" && recordId) {
             recordData.recordId = recordId;
         }
 
         try {
+            if (method === "PUT") {
+                source = source + "/" + recordId;
+            }
+            console.log(source);
             const response = await fetch(source, {
                 method: method,
                 headers: {

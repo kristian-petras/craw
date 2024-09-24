@@ -16,14 +16,43 @@ function App() {
     const [backendLoading, setBackendLoading] = useState(true);
     const {
         graph,
-        loading
+        backgroundGraph,
+        setGraph, // Now we have access to setGraph here
+        loading,
+        cached,
+        setCached
     } = useGraphStream(config.backendHost + "/graph", setSelectedRootNode, backendLoading, setBackendLoading);
+
+    const handleCheckboxChange = () => {
+        setCached(prevCached => {
+            const newCached = !prevCached;
+
+            // If unchecking (cached -> false), update the graph with the latest background data
+            if (!newCached) {
+                setGraph(backgroundGraph); // Show the latest data
+                console.log(selectedRootNode);
+            }
+
+            return newCached;
+        });
+    };
 
     return (
         <div className="App">
             <Header>
                 <Logo/>
                 <Status host={config.backendHost} status={backendLoading}/>
+
+                <div style={{opacity: 0.5}}>
+                    <label>
+                        <input
+                            type="checkbox"
+                            checked={cached}
+                            onChange={handleCheckboxChange}
+                        />
+                        <span style={{fontWeight: 'bold'}}>Use Cached Data</span>
+                    </label>
+                </div>
             </Header>
 
             <Body>
@@ -55,6 +84,7 @@ function App() {
         </div>
     );
 }
+
 
 function TreeSectionWrapper({graph, loading, selectedRootNode}) {
     if (loading) {

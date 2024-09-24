@@ -2,6 +2,8 @@ import {useEffect, useState} from 'react';
 
 const useGraphStream = (source, setSelected, backendLoading, setBackendLoading) => {
     const [graph, setGraph] = useState();
+    const [backgroundGraph, setBackgroundGraph] = useState();
+    const [cached, setCached] = useState(false);
 
     useEffect(() => {
         let stream;
@@ -11,8 +13,14 @@ const useGraphStream = (source, setSelected, backendLoading, setBackendLoading) 
             stream = new EventSource(source);
 
             stream.onmessage = (event) => {
-                setGraph(JSON.parse(event.data));
-                console.log(graph)
+                const newGraph = JSON.parse(event.data);
+                setBackgroundGraph(newGraph); // Always update the background graph with new data
+
+                // Only update the visible graph if caching is off
+                if (!cached) {
+                    setGraph(newGraph);
+                }
+
                 setBackendLoading(false);
             };
 
@@ -32,9 +40,11 @@ const useGraphStream = (source, setSelected, backendLoading, setBackendLoading) 
             }
             clearTimeout(retryTimeout);
         };
-    }, [source]);
+    }, [source, cached]); // Add `cached` as a dependency to properly control updates
 
-    return {graph, loading: backendLoading};
+    return {graph, backgroundGraph, setGraph, loading: backendLoading, cached, setCached};
 };
+
+
 
 export default useGraphStream;

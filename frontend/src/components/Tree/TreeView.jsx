@@ -54,7 +54,7 @@ const TreeNode = ({nodeDatum}) => {
     return (
         <foreignObject className="TreeNode" width="200" height="120">
             <Flex className="Container" direction="column" gap="1">
-                <Flex direction="row" justify="between" align="center" >
+                <Flex direction="row" justify="between" align="center">
                     <Text truncate size="2" className="Text SiteTitle">
                         {nodeDatum.title}
                     </Text>

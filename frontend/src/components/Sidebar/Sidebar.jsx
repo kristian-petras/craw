@@ -1,4 +1,4 @@
-import {Box, Button, Card, Checkbox, Flex, Text, TextArea, TextField, Theme} from "@radix-ui/themes";
+import {Box, Card, Flex, Text, Theme} from "@radix-ui/themes";
 import SidebarScrollArea from "./SidebarScrollArea.jsx";
 import '../../styles/Sidebar.css';
 import {SidebarTitle} from "./SidebarItem.jsx";
@@ -47,12 +47,12 @@ const AddRecord = () => (
 const AllExecutionsPopup = ({graph}) => {
     if (!graph) {
         return (
-        <Card className="DialogCard" size="3">
-            <Text>No Executions Yet</Text>
-        </Card>);
+            <Card className="DialogCard" size="3">
+                <Text>No Executions Yet</Text>
+            </Card>);
     }
 
-    const executions = graph.nodes.map( (node) => node.execution ).flat()
+    const executions = graph.nodes.map((node) => node.execution).flat()
 
     return (
         <Card className="DialogCard" size="3">
@@ -75,7 +75,7 @@ const AllExecutions = ({graph}) => (
             <Dialog.Overlay className="DialogOverlay"/>
             <Dialog.Content className="DialogContent">
                 <Theme accentColor="teal" appearance="dark" radius="large">
-                    <AllExecutionsPopup graph={graph} />
+                    <AllExecutionsPopup graph={graph}/>
                 </Theme>
             </Dialog.Content>
         </Dialog.Portal>
@@ -89,7 +89,7 @@ export const Sidebar = ({children, graph}) => {
                 <SidebarTitle>CRAWLER</SidebarTitle>
                 <Flex className="SidebarItems" direction="column">
                     <AddRecord/>
-                    <AllExecutions graph={graph} />
+                    <AllExecutions graph={graph}/>
                 </Flex>
 
                 <SidebarTitle>RECORDS</SidebarTitle>

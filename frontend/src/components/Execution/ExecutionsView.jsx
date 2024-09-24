@@ -1,4 +1,4 @@
-import {Flex, Text, Button} from "@radix-ui/themes";
+import {Button, Flex, Text} from "@radix-ui/themes";
 import {useState} from 'react';
 
 const ExecutionItem = ({execution}) => (
@@ -85,7 +85,7 @@ const Pagination = ({currentPage, totalPages, paginate}) => {
 };
 
 // Main ExecutionsView Component
-const ExecutionsView = ({executions, full = false}) => {
+const ExecutionsView = ({executions}) => {
     const [currentPage, setCurrentPage] = useState(1);
     const executionsPerPage = 5; // Number of executions per page
     const totalPages = Math.ceil(executions.length / executionsPerPage);
@@ -96,7 +96,7 @@ const ExecutionsView = ({executions, full = false}) => {
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-    // <Flex direction="column" className={full ? "ExecutionsViewFull" : "ExecutionsView"} gapY="4">
+
     return (
         <Flex direction="column" gapY="4">
             {executions.length === 0 ? (
