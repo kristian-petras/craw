@@ -55,10 +55,7 @@ internal fun Application.module(
         }
         install(CORS) {
             anyHost()
-            allowCredentials = true
             allowHeader(HttpHeaders.ContentType)
-            allowHeader(HttpHeaders.AccessControlAllowOrigin)
-            allowHeader(HttpHeaders.Authorization)
             allowMethod(HttpMethod.Get)
             allowMethod(HttpMethod.Post)
             allowMethod(HttpMethod.Put)
@@ -120,7 +117,7 @@ private fun Route.restRoutes(app: RecordApplication) {
             call.application.log.info("Response: POST /record $id")
             call.respond(HttpStatusCode.OK, id)
         }
-        put {
+        put("{id}") {
             call.application.log.info("Request: PUT /record")
             val payload = runCatching { call.receive<WebsiteRecordUpdate>() }
             if (payload.isFailure) {

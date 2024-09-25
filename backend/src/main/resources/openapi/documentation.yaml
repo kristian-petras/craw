@@ -1,29 +1,20 @@
-openapi: "3.0.3"
+openapi: "3.1.0"
 info:
   title: "craw API"
   description: "craw API"
   version: "1.0.0"
 servers:
-- url: "https://craw"
+  - url: "http://localhost:8080"
 paths:
-  /record:
-    delete:
+  /graph:
+    get:
       description: ""
-      requestBody:
-        content:
-          '*/*':
-            schema:
-              $ref: "#/components/schemas/WebsiteRecordDelete"
-        required: true
+  /record:
+    options:
+      description: ""
       responses:
         "200":
           description: "OK"
-          content:
-            '*/*':
-              schema:
-                type: "object"
-        "400":
-          description: "Bad Request"
           content:
             '*/*':
               schema:
@@ -32,26 +23,74 @@ paths:
       description: ""
       requestBody:
         content:
-          '*/*':
+          application/json:
             schema:
-              $ref: "#/components/schemas/WebsiteRecordAdd"
+              $ref: "#/components/schemas/WebsiteRecordCreate"
         required: true
+      responses:
+        "400":
+          description: "Bad Request"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+  /record/{id}:
+    delete:
+      description: ""
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "400":
+          description: "Bad Request"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+    get:
+      description: ""
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
       responses:
         "200":
           description: "OK"
           content:
             '*/*':
               schema:
-                type: "integer"
-                format: "int32"
-    put:
+                $ref: "#/components/schemas/WebsiteRecord"
+        "404":
+          description: "Not Found"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+    options:
       description: ""
-      requestBody:
-        content:
-          '*/*':
-            schema:
-              $ref: "#/components/schemas/WebsiteRecordModify"
-        required: true
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
       responses:
         "200":
           description: "OK"
@@ -59,8 +98,29 @@ paths:
             '*/*':
               schema:
                 type: "object"
+    put:
+      description: ""
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebsiteRecordUpdate"
+        required: true
+      responses:
         "400":
           description: "Bad Request"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+        "200":
+          description: "OK"
           content:
             '*/*':
               schema:
@@ -77,51 +137,23 @@ paths:
                 type: "array"
                 items:
                   $ref: "#/components/schemas/WebsiteRecord"
-  /table:
-    get:
+    options:
       description: ""
       responses:
         "200":
           description: "OK"
           content:
-            text/plain:
+            '*/*':
               schema:
-                $ref: "#/components/schemas/Function1_? super HTML"
-              examples:
-                text/html:
-                  description: "HTML document"
-                  value: ""
-  /graph:
-    get:
-      description: ""
-      responses:
-        "200":
-          description: "OK"
-          content:
-            text/plain:
-              schema:
-                $ref: "#/components/schemas/Function1_? super HTML"
-              examples:
-                text/html:
-                  description: "HTML document"
-                  value: ""
-  /graph-events:
-    get:
-      description: ""
+                type: "object"
 components:
   schemas:
-    WebsiteRecordDelete:
-      type: "object"
-      properties:
-        id:
-          type: "integer"
-          format: "int32"
-    WebsiteRecordAdd:
+    WebsiteRecordCreate:
       type: "object"
       properties:
         url:
           type: "string"
-        boundaryRegExp:
+        regexp:
           type: "string"
         periodicity:
           type: "string"
@@ -133,64 +165,42 @@ components:
           type: "array"
           items:
             type: "string"
-    WebsiteRecordModify:
+      required:
+        - "url"
+        - "regexp"
+        - "periodicity"
+        - "label"
+        - "tags"
+    Instant:
       type: "object"
-      properties:
-        id:
-          type: "integer"
-          format: "int32"
-        url:
-          type: "string"
-        boundaryRegExp:
-          type: "string"
-        periodicity:
-          type: "string"
-        label:
-          type: "string"
-        active:
-          type: "boolean"
-        tags:
-          type: "array"
-          items:
-            type: "string"
-    CrawledRecord:
+      properties: { }
+    WebsiteExecution:
       type: "object"
       properties:
         url:
           type: "string"
-        crawlTime:
-          type: "string"
+        start:
+          $ref: "#/components/schemas/Instant"
+        end:
+          $ref: "#/components/schemas/Instant"
         title:
           type: "string"
         links:
           type: "array"
           items:
             type: "string"
-        matchedLinks:
-          type: "array"
-          items:
-            type: "string"
-    Execution:
-      type: "object"
-      properties:
-        crawledRecords:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/CrawledRecord"
-        totalTime:
-          type: "string"
-    Instant:
-      type: "object"
-      properties: {}
+      required:
+        - "url"
+        - "start"
+        - "links"
     WebsiteRecord:
       type: "object"
       properties:
-        id:
-          type: "integer"
-          format: "int32"
+        recordId:
+          type: "string"
         url:
           type: "string"
-        boundaryRegExp:
+        regexp:
           type: "string"
         periodicity:
           type: "string"
@@ -205,13 +215,33 @@ components:
         executions:
           type: "array"
           items:
-            $ref: "#/components/schemas/Execution"
-        lastExecutionTimestamp:
-          $ref: "#/components/schemas/Instant"
-        lastExecutionStatus:
+            $ref: "#/components/schemas/WebsiteExecution"
+      required:
+        - "recordId"
+        - "url"
+        - "regexp"
+        - "periodicity"
+        - "label"
+        - "tags"
+        - "executions"
+    WebsiteRecordUpdate:
+      type: "object"
+      properties:
+        recordId:
+          type: "string"
+        url:
+          type: "string"
+        regexp:
+          type: "string"
+        periodicity:
+          type: "string"
+        label:
+          type: "string"
+        active:
           type: "boolean"
-    Function1:
-      type: "object"
-      properties: {}
-    Function1_? super HTML:
-      type: "object"
+        tags:
+          type: "array"
+          items:
+            type: "string"
+      required:
+        - "recordId"

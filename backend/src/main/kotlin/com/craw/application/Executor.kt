@@ -23,6 +23,7 @@ class Executor(
 ) {
     private val queue = mutableListOf<TimedExecutionSchedule>()
     private val reschedule = Channel<Unit>(Channel.UNLIMITED)
+    private val delete = Channel<String>(Channel.UNLIMITED)
 
     fun schedule(
         recordId: String,
@@ -65,6 +66,7 @@ class Executor(
     }
 
     fun remove(recordId: String): Execution.Pending? {
+        delete.trySend(recordId)
         val schedule = find(recordId) ?: return null
         val success = queue.remove(schedule)
         if (success) {
@@ -89,16 +91,26 @@ class Executor(
         reschedule.trySend(Unit)
     }
 
+    sealed interface ExecutorOutput {
+        data class Record(val record: RecordState) : ExecutorOutput
+
+        data class Remove(val recordId: String) : ExecutorOutput
+    }
+
     /**
      * Returns a flow of execution updates.
      * After scheduling a new execution, the flow will emit the states as they are being crawled.
      * Should be called only once.
      */
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun subscribe(): Flow<RecordState> =
+    fun subscribe(): Flow<ExecutorOutput> =
         channelFlow {
             while (isActive) {
                 select {
+                    delete.onReceive {
+                        logger.info("Received delete for record $it")
+                        send(ExecutorOutput.Remove(it))
+                    }
                     reschedule.onReceive {} // restart the waiting in case something new was scheduled
                     onTimeout(untilNextEvent(timeProvider.now())) {
                         val (_, execution, record) =
@@ -108,7 +120,7 @@ class Executor(
                         logger.info("Executing execution ${execution.executionId} for record ${record.recordId}")
 
                         val startedExecution = repository.startExecution(execution.executionId)
-                        send(startedExecution.updateRecordState(record))
+                        send(ExecutorOutput.Record(startedExecution.updateRecordState(record)))
 
                         logger.info("Starting crawl for execution ${startedExecution.executionId}")
                         crawler.crawl(
@@ -117,12 +129,12 @@ class Executor(
                             regex = record.regexp.toRegex(),
                         )
                             .map { startedExecution.copy(crawl = it) }
-                            .collect { send(it.updateRecordState(record)) }
+                            .collect { send(ExecutorOutput.Record(it.updateRecordState(record))) }
                         logger.info("Crawl for execution ${startedExecution.executionId} finished")
 
                         val end = timeProvider.now()
                         val executionCompleted = repository.completeExecution(startedExecution.executionId, end)
-                        send(executionCompleted.updateRecordState(record))
+                        send(ExecutorOutput.Record(executionCompleted.updateRecordState(record)))
 
                         // reschedule the next event
                         schedule(record.recordId, true)

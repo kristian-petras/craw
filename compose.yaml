@@ -3,7 +3,7 @@ services:
     container_name: craw-frontend
     build: frontend
     ports:
-      - "80:80"
+      - "8081:80"
     environment:
       BACKEND_HOST: "backend:8080"
     networks:

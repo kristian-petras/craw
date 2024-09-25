@@ -54,7 +54,12 @@ suspend fun main(): Unit =
 
         // start executor
         launch {
-            executor.subscribe().onEach { graphApplication.update(it) }.collect()
+            executor.subscribe().onEach {
+                when (it) {
+                    is Executor.ExecutorOutput.Record -> graphApplication.update(it.record)
+                    is Executor.ExecutorOutput.Remove -> graphApplication.remove(it.recordId)
+                }
+            }.collect()
         }
 
         embeddedServer(

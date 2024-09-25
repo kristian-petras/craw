@@ -36,6 +36,12 @@ class GraphApplication(private val translator: SseTranslator) {
         return Graph(newNodes.toList())
     }
 
+    fun remove(recordId: String) {
+        val oldGraph = state.value
+        state.value = oldGraph.copy(nodes = oldGraph.nodes.filterNot { it.record.recordId == recordId })
+        logger.info("Removed node $recordId from graph")
+    }
+
     companion object {
         private val logger = logger<GraphApplication>()
     }

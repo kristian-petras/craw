@@ -146,10 +146,10 @@ class Crawler(
     ): ParseResult {
         // TODO: robots.txt handling
         val payload = runCatching { client.get(url) }.getOrNull()
-        delay(10.seconds)
+        delay(1.seconds)
         if (payload != null && payload.status.isSuccess()) {
             logger.info("Fetched $url with status ${payload.status}")
-            return parser.parse(url, payload.bodyAsText(), regex, cache)
+            return parser.parse(url, runCatching { payload.bodyAsText() }.getOrElse { "" }, regex, cache)
         } else {
             logger.warn("Failed to fetch $url")
             if (payload != null) {

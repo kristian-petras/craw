@@ -38,7 +38,7 @@ class SseTranslator {
                     executionId = executionId,
                     start = start,
                     end = end,
-                    crawledCount = crawl.toGraphNode().toCrawlCount()
+                    crawledCount = crawl.toGraphNode().toCrawlCount(),
                 )
 
             is Execution.Running ->
@@ -48,7 +48,7 @@ class SseTranslator {
                     executionId = executionId,
                     start = start,
                     end = null,
-                    crawledCount = crawl.toGraphNode().toCrawlCount()
+                    crawledCount = crawl.toGraphNode().toCrawlCount(),
                 )
 
             is Execution.Pending ->
@@ -58,7 +58,7 @@ class SseTranslator {
                     executionId = executionId,
                     start = start,
                     end = null,
-                    crawledCount = crawl.toGraphNode().toCrawlCount()
+                    crawledCount = crawl.toGraphNode().toCrawlCount(),
                 )
         }
 
