@@ -9,7 +9,7 @@ jobs:
   prettier:
     defaults:
       run:
-        working-directory: backend
+        working-directory: frontend
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
